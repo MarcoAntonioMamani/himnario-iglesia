@@ -1,0 +1,416 @@
+{
+  "culto": [
+    {
+      "titulo": "Venir a su presencia",
+      "reflexion": "Cantar en el culto no es llenar un espacio del programa: es acercarnos al Dios que nos invitó primero. Antes de la primera nota, deja afuera la prisa y las preocupaciones; él no busca voces perfectas, sino corazones dispuestos.",
+      "citas": [
+        { "referencia": "Salmo 100", "nota": "Un llamado a entrar por sus puertas con gratitud, reconociendo que somos pueblo suyo y ovejas de su prado." },
+        { "referencia": "Hebreos 10:19-22", "nota": "Por la sangre de Jesús tenemos libertad para acercarnos a Dios con corazón sincero." }
+      ]
+    },
+    {
+      "titulo": "Adorar en espíritu y en verdad",
+      "reflexion": "Jesús le dijo a una mujer junto a un pozo que lo importante no es el monte ni el templo, sino la sinceridad del adorador. Que este himno no salga solo de los labios, sino de una vida que quiere agradarle.",
+      "citas": [
+        { "referencia": "Juan 4:19-24", "nota": "Dios busca adoradores que le adoren en espíritu y en verdad, sin importar el lugar." },
+        { "referencia": "Isaías 29:13", "nota": "Advertencia contra honrar a Dios con la boca mientras el corazón está lejos." },
+        { "referencia": "Romanos 12:1", "nota": "La verdadera adoración es presentar toda la vida como ofrenda viva a Dios." }
+      ]
+    },
+    {
+      "titulo": "El sábado, un encuentro",
+      "reflexion": "Dios apartó un día para estar con nosotros. El sábado es un regalo: tiempo para descansar en él, recordar que nos creó y que nos redimió. Al cantar hoy, recibe ese descanso.",
+      "citas": [
+        { "referencia": "Génesis 2:1-3", "nota": "Dios bendijo y santificó el séptimo día al terminar la creación." },
+        { "referencia": "Marcos 2:27-28", "nota": "El sábado fue hecho para el bien del ser humano, y Jesús es Señor del sábado." },
+        { "referencia": "Isaías 58:13-14", "nota": "Quien llama al sábado 'delicia' encuentra su gozo en el Señor." }
+      ]
+    },
+    {
+      "titulo": "Un cántico nuevo",
+      "reflexion": "La Biblia invita una y otra vez a cantar un 'cántico nuevo'. No se trata de una melodía distinta, sino de una gratitud fresca por lo que Dios hizo esta semana. ¿Qué motivo nuevo tienes hoy para alabarle?",
+      "citas": [
+        { "referencia": "Salmo 96:1-3", "nota": "Toda la tierra es invitada a cantar y anunciar cada día la salvación de Dios." },
+        { "referencia": "Salmo 40:1-3", "nota": "David cuenta cómo Dios lo sacó del pozo y puso en su boca un cántico nuevo." }
+      ]
+    },
+    {
+      "titulo": "Gratitud que se canta",
+      "reflexion": "Pablo y Silas cantaron en la cárcel a medianoche. La alabanza no depende de que todo vaya bien: nace de saber quién es Dios. Que este himno sea tu respuesta de confianza, aun en la noche.",
+      "citas": [
+        { "referencia": "Hechos 16:22-26", "nota": "Encarcelados y heridos, Pablo y Silas oraban y cantaban himnos; los presos los escuchaban." },
+        { "referencia": "1 Tesalonicenses 5:16-18", "nota": "Estar siempre gozosos, orar sin cesar y dar gracias en todo." },
+        { "referencia": "Colosenses 3:16", "nota": "Que la palabra de Cristo habite en nosotros y nos lleve a cantar con gratitud." }
+      ]
+    }
+  ],
+  "padre": [
+    {
+      "titulo": "El Creador que nos conoce",
+      "reflexion": "El mismo Dios que llama por nombre a las estrellas sabe tu nombre. La grandeza de la creación no nos hace pequeños e insignificantes, sino amados por alguien inmensamente grande.",
+      "citas": [
+        { "referencia": "Salmo 8", "nota": "Ante la luna y las estrellas, David se asombra de que Dios se acuerde del ser humano." },
+        { "referencia": "Isaías 40:25-31", "nota": "El Creador que sostiene los astros da fuerzas al cansado." }
+      ]
+    },
+    {
+      "titulo": "Un Padre que corre al encuentro",
+      "reflexion": "En la parábola del hijo pródigo, el padre no espera sentado: corre, abraza y celebra. Así describió Jesús al Padre. No hay distancia que su amor no esté dispuesto a recorrer.",
+      "citas": [
+        { "referencia": "Lucas 15:11-24", "nota": "El padre ve de lejos al hijo que vuelve, se compadece, corre y lo abraza." },
+        { "referencia": "1 Juan 3:1", "nota": "Mirad cuánto amor nos ha dado el Padre: que seamos llamados hijos de Dios." }
+      ]
+    },
+    {
+      "titulo": "Fiel cada mañana",
+      "reflexion": "Jeremías escribió sobre la fidelidad de Dios en medio de ruinas. Cuando todo alrededor se derrumba, sus misericordias siguen nuevas cada mañana. Esa fidelidad no depende de nuestras circunstancias.",
+      "citas": [
+        { "referencia": "Lamentaciones 3:21-26", "nota": "Las misericordias del Señor nunca se agotan; son nuevas cada mañana." },
+        { "referencia": "Salmo 36:5-9", "nota": "Su fidelidad alcanza hasta las nubes; en él está la fuente de la vida." },
+        { "referencia": "Santiago 1:17", "nota": "Todo buen regalo viene del Padre, en quien no hay cambio ni sombra." }
+      ]
+    },
+    {
+      "titulo": "Él cuida de lo pequeño",
+      "reflexion": "Jesús señaló los pájaros y las flores del campo para enseñar que el Padre provee. Si él cuida lo que dura un día, ¿cómo no cuidará de ti? Entrega hoy tu ansiedad mientras cantas.",
+      "citas": [
+        { "referencia": "Mateo 6:25-34", "nota": "El Padre alimenta a las aves y viste a los lirios; busquemos primero su reino." },
+        { "referencia": "1 Pedro 5:7", "nota": "Echar toda ansiedad sobre él, porque él tiene cuidado de nosotros." }
+      ]
+    },
+    {
+      "titulo": "Santo, santo, santo",
+      "reflexion": "Isaías vio al Señor alto y sublime y se sintió indigno. Pero Dios no lo dejó en su culpa: lo purificó y lo envió. La santidad de Dios no nos aleja; nos transforma.",
+      "citas": [
+        { "referencia": "Isaías 6:1-8", "nota": "Isaías ve la gloria de Dios, es purificado y responde: 'Heme aquí, envíame a mí'." },
+        { "referencia": "Apocalipsis 4:8-11", "nota": "Los seres celestiales adoran sin cesar al Dios santo, digno de gloria por ser Creador." }
+      ]
+    }
+  ],
+  "cristo": [
+    {
+      "titulo": "El Verbo hecho carne",
+      "reflexion": "Dios no nos salvó desde lejos: se hizo uno de nosotros. Jesús conoció el cansancio, el hambre y las lágrimas. Por eso puede entendernos y por eso cantamos su nombre con confianza.",
+      "citas": [
+        { "referencia": "Juan 1:1-14", "nota": "El Verbo, que era Dios, se hizo carne y habitó entre nosotros, lleno de gracia y de verdad." },
+        { "referencia": "Hebreos 4:14-16", "nota": "Tenemos un sumo sacerdote que se compadece de nuestras debilidades." },
+        { "referencia": "Filipenses 2:5-11", "nota": "Cristo se humilló hasta la muerte de cruz, y Dios le dio un nombre sobre todo nombre." }
+      ]
+    },
+    {
+      "titulo": "La cruz, el centro de todo",
+      "reflexion": "En la cruz se encuentran la justicia y la misericordia de Dios. Allí Jesús cargó lo que nosotros merecíamos. Cada himno sobre el Calvario nos recuerda que fuimos comprados a gran precio.",
+      "citas": [
+        { "referencia": "Isaías 53:3-6", "nota": "El siervo sufriente fue herido por nuestras rebeliones; por sus llagas fuimos sanados." },
+        { "referencia": "Romanos 5:6-8", "nota": "Dios muestra su amor en que Cristo murió por nosotros siendo aún pecadores." }
+      ]
+    },
+    {
+      "titulo": "Él resucitó",
+      "reflexion": "Las mujeres llegaron a la tumba con perfumes para un muerto y encontraron un anuncio de vida. La resurrección cambia el final de toda historia: la muerte ya no tiene la última palabra.",
+      "citas": [
+        { "referencia": "Mateo 28:1-10", "nota": "El ángel anuncia a las mujeres que Jesús no está allí: ha resucitado." },
+        { "referencia": "1 Corintios 15:20-22", "nota": "Cristo resucitó como primicia; en él todos serán vivificados." },
+        { "referencia": "Juan 11:25-26", "nota": "Jesús declara a Marta: 'Yo soy la resurrección y la vida'." }
+      ]
+    },
+    {
+      "titulo": "El Buen Pastor",
+      "reflexion": "Un pastor conoce a cada oveja y sale a buscar a la perdida. Jesús se presentó así. Si hoy te sientes lejos, este himno es su voz llamándote por tu nombre.",
+      "citas": [
+        { "referencia": "Juan 10:11-16", "nota": "El buen pastor da su vida por las ovejas y las conoce una a una." },
+        { "referencia": "Salmo 23", "nota": "Con el Señor como pastor nada falta, aun en el valle de sombra de muerte." },
+        { "referencia": "Lucas 15:3-7", "nota": "El pastor deja las noventa y nueve para buscar la oveja perdida." }
+      ]
+    },
+    {
+      "titulo": "¡Viene otra vez!",
+      "reflexion": "Jesús prometió volver, y esa promesa ha sostenido a creyentes de todos los siglos. Cantamos con esperanza: el mismo que se fue en las nubes vendrá por los suyos.",
+      "citas": [
+        { "referencia": "Juan 14:1-3", "nota": "Jesús va a preparar lugar y promete volver para llevarnos con él." },
+        { "referencia": "Hechos 1:9-11", "nota": "Los ángeles anuncian que Jesús vendrá de la misma manera en que lo vieron irse." },
+        { "referencia": "Tito 2:11-14", "nota": "Vivimos aguardando la esperanza bienaventurada y la manifestación gloriosa de Cristo." }
+      ]
+    }
+  ],
+  "espiritu": [
+    {
+      "titulo": "El Consolador prometido",
+      "reflexion": "Antes de irse, Jesús prometió no dejarnos huérfanos. El Espíritu Santo es su presencia con nosotros: consuela, enseña y recuerda las palabras de Cristo. No caminas solo.",
+      "citas": [
+        { "referencia": "Juan 14:16-18, 26", "nota": "Jesús promete otro Consolador que estará siempre con nosotros y nos enseñará todas las cosas." },
+        { "referencia": "Romanos 8:26-27", "nota": "El Espíritu nos ayuda en nuestra debilidad e intercede cuando no sabemos qué pedir." }
+      ]
+    },
+    {
+      "titulo": "Viento y fuego en Pentecostés",
+      "reflexion": "Un grupo de discípulos temerosos se convirtió en testigos valientes. El cambio no vino de un plan humano, sino del Espíritu derramado. Pide hoy ese mismo poder para tu vida.",
+      "citas": [
+        { "referencia": "Hechos 2:1-4", "nota": "En Pentecostés vino un estruendo como de viento y lenguas como de fuego sobre los discípulos." },
+        { "referencia": "Hechos 1:8", "nota": "Recibiréis poder cuando venga el Espíritu Santo y me seréis testigos." },
+        { "referencia": "Joel 2:28-29", "nota": "Dios promete derramar su Espíritu sobre toda carne." }
+      ]
+    },
+    {
+      "titulo": "El fruto que crece",
+      "reflexion": "El Espíritu no solo da dones; produce carácter. Amor, gozo, paz, paciencia… no se fabrican a fuerza de voluntad: crecen cuando permanecemos unidos a Dios.",
+      "citas": [
+        { "referencia": "Gálatas 5:22-25", "nota": "El fruto del Espíritu es amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre y templanza." },
+        { "referencia": "Juan 15:4-5", "nota": "Separados de la vid no podemos dar fruto." }
+      ]
+    },
+    {
+      "titulo": "Nacer de nuevo",
+      "reflexion": "Nicodemo, maestro religioso, vino de noche a preguntar. Jesús le habló de un nuevo nacimiento obrado por el Espíritu. Nadie es demasiado religioso ni demasiado lejano para empezar de nuevo.",
+      "citas": [
+        { "referencia": "Juan 3:1-8", "nota": "Jesús explica a Nicodemo que es necesario nacer del agua y del Espíritu." },
+        { "referencia": "Ezequiel 36:26-27", "nota": "Dios promete un corazón nuevo y poner su Espíritu dentro de nosotros." }
+      ]
+    },
+    {
+      "titulo": "No contristéis al Espíritu",
+      "reflexion": "El Espíritu Santo es una persona que puede entristecerse. Nuestras palabras duras, el rencor y la indiferencia le duelen. Este himno es una oportunidad para abrirle el corazón de nuevo.",
+      "citas": [
+        { "referencia": "Efesios 4:29-32", "nota": "No entristecer al Espíritu; quitar la amargura y perdonarnos unos a otros." },
+        { "referencia": "Salmo 51:10-12", "nota": "David pide un corazón limpio y que Dios no le quite su Santo Espíritu." },
+        { "referencia": "Apocalipsis 3:20", "nota": "Jesús está a la puerta y llama; entrará a quien le abra." }
+      ]
+    }
+  ],
+  "escrituras": [
+    {
+      "titulo": "Lámpara a mis pies",
+      "reflexion": "La Palabra de Dios no siempre ilumina todo el camino de una vez, pero siempre alumbra el paso siguiente. Abrirla cada día es caminar con luz.",
+      "citas": [
+        { "referencia": "Salmo 119:105", "nota": "La palabra de Dios es lámpara para los pies y luz para el camino." },
+        { "referencia": "Salmo 119:9-11", "nota": "Guardar la palabra en el corazón nos ayuda a no pecar." }
+      ]
+    },
+    {
+      "titulo": "Inspirada por Dios",
+      "reflexion": "Pablo le recordó a Timoteo que las Escrituras que aprendió de niño podían hacerlo sabio para la salvación. La Biblia no es solo historia antigua: Dios sigue hablando por ella hoy.",
+      "citas": [
+        { "referencia": "2 Timoteo 3:14-17", "nota": "Toda la Escritura es inspirada por Dios y útil para enseñar, corregir e instruir." },
+        { "referencia": "2 Pedro 1:19-21", "nota": "Los profetas hablaron siendo inspirados por el Espíritu Santo." }
+      ]
+    },
+    {
+      "titulo": "Una palabra que permanece",
+      "reflexion": "Imperios, ideas y modas pasan. La Palabra de Dios permanece. Cuando todo cambia, puedes edificar sobre lo que Dios ha dicho.",
+      "citas": [
+        { "referencia": "Isaías 40:6-8", "nota": "La hierba se seca y la flor se marchita, pero la palabra de Dios permanece para siempre." },
+        { "referencia": "Mateo 7:24-27", "nota": "Quien oye y practica las palabras de Jesús edifica sobre la roca." },
+        { "referencia": "Hebreos 4:12", "nota": "La palabra de Dios es viva y eficaz, y discierne los pensamientos del corazón." }
+      ]
+    },
+    {
+      "titulo": "Corazones que arden",
+      "reflexion": "Dos discípulos tristes caminaban a Emaús. Jesús les explicó las Escrituras y su corazón empezó a arder. Al leer la Biblia, pide que él mismo te la abra.",
+      "citas": [
+        { "referencia": "Lucas 24:13-32", "nota": "Jesús resucitado explica las Escrituras a dos discípulos que luego exclaman que su corazón ardía." },
+        { "referencia": "Juan 5:39", "nota": "Las Escrituras dan testimonio de Jesús." }
+      ]
+    },
+    {
+      "titulo": "Como los de Berea",
+      "reflexion": "Los creyentes de Berea recibieron el mensaje con entusiasmo y lo comprobaban cada día en las Escrituras. Amar la Biblia es también estudiarla con atención y humildad.",
+      "citas": [
+        { "referencia": "Hechos 17:10-12", "nota": "Los de Berea escudriñaban cada día las Escrituras para ver si lo que oían era así." },
+        { "referencia": "Josué 1:8", "nota": "Meditar en la ley de Dios de día y de noche trae prosperidad en el camino." }
+      ]
+    }
+  ],
+  "evangelio": [
+    {
+      "titulo": "Tanto amó Dios",
+      "reflexion": "El evangelio cabe en un versículo, pero no se agota en toda una vida. Dios amó, Dios dio, y quien cree tiene vida. No es una recompensa al mérito, sino un regalo.",
+      "citas": [
+        { "referencia": "Juan 3:16-17", "nota": "Dios amó al mundo y dio a su Hijo para salvar, no para condenar." },
+        { "referencia": "Efesios 2:8-10", "nota": "Somos salvos por gracia mediante la fe; es un don de Dios, no por obras." }
+      ]
+    },
+    {
+      "titulo": "Ven tal como estás",
+      "reflexion": "Jesús invitó a los cansados y cargados, no a los que ya lo tenían todo resuelto. No necesitas arreglarte primero para venir a él: él te recibe y te transforma.",
+      "citas": [
+        { "referencia": "Mateo 11:28-30", "nota": "Jesús invita a los cansados a venir a él para encontrar descanso." },
+        { "referencia": "Juan 6:37", "nota": "Al que viene a Jesús, él no lo echa fuera." },
+        { "referencia": "Isaías 1:18", "nota": "Aunque los pecados sean como la grana, Dios los emblanquece como la nieve." }
+      ]
+    },
+    {
+      "titulo": "Zaqueo: hoy ha llegado la salvación",
+      "reflexion": "Zaqueo subió a un árbol por curiosidad y bajó con la vida cambiada. Jesús lo llamó por su nombre antes de que él dijera nada. La gracia siempre da el primer paso.",
+      "citas": [
+        { "referencia": "Lucas 19:1-10", "nota": "Jesús se hospeda en casa de Zaqueo, que responde restituyendo lo que había robado." },
+        { "referencia": "Romanos 5:8", "nota": "Cristo murió por nosotros cuando aún éramos pecadores." }
+      ]
+    },
+    {
+      "titulo": "Arrepentimiento y perdón",
+      "reflexion": "David cayó gravemente, pero no se escondió de Dios. Su oración en el Salmo 51 muestra que el arrepentimiento sincero encuentra un Dios dispuesto a limpiar y restaurar.",
+      "citas": [
+        { "referencia": "Salmo 51:1-12", "nota": "David pide misericordia, un corazón limpio y que le vuelva el gozo de la salvación." },
+        { "referencia": "1 Juan 1:9", "nota": "Si confesamos nuestros pecados, Dios es fiel y justo para perdonarnos." },
+        { "referencia": "Hechos 3:19", "nota": "Arrepentirse y convertirse para que los pecados sean borrados." }
+      ]
+    },
+    {
+      "titulo": "El ladrón en la cruz",
+      "reflexion": "En sus últimas horas, un hombre condenado pidió a Jesús que se acordara de él, y recibió una promesa. Nunca es tarde para volverse a Cristo mientras hay vida.",
+      "citas": [
+        { "referencia": "Lucas 23:39-43", "nota": "Uno de los crucificados reconoce a Jesús y recibe la promesa de estar con él en el paraíso." },
+        { "referencia": "2 Corintios 6:2", "nota": "Ahora es el tiempo aceptable; ahora es el día de salvación." }
+      ]
+    }
+  ],
+  "vida": [
+    {
+      "titulo": "Confiar en medio de la tormenta",
+      "reflexion": "Los discípulos remaban asustados mientras Jesús dormía en la barca. Él calmó el mar, pero primero les preguntó por su fe. La tormenta no significa que él te haya abandonado.",
+      "citas": [
+        { "referencia": "Marcos 4:35-41", "nota": "Jesús calma la tempestad y pregunta a sus discípulos por qué tienen miedo." },
+        { "referencia": "Isaías 43:1-3", "nota": "Cuando pases por las aguas, yo estaré contigo." },
+        { "referencia": "Salmo 46:1-3", "nota": "Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones." }
+      ]
+    },
+    {
+      "titulo": "Caminar con Dios",
+      "reflexion": "De Enoc se dice simplemente que caminó con Dios. No se mencionan grandes hazañas, sino una relación diaria. La vida cristiana se construye paso a paso, día a día, en su compañía.",
+      "citas": [
+        { "referencia": "Génesis 5:21-24", "nota": "Enoc caminó con Dios y desapareció, porque Dios se lo llevó." },
+        { "referencia": "Miqueas 6:8", "nota": "Lo que Dios pide: hacer justicia, amar la misericordia y caminar humildemente con él." }
+      ]
+    },
+    {
+      "titulo": "La oración que cambia",
+      "reflexion": "Ana derramó su alma ante Dios en el templo, tanto que la creyeron ebria. Dios escuchó su oración sincera. Él no se cansa de oír lo que llevamos en el corazón.",
+      "citas": [
+        { "referencia": "1 Samuel 1:9-20", "nota": "Ana ora con angustia por un hijo y Dios responde con el nacimiento de Samuel." },
+        { "referencia": "Filipenses 4:6-7", "nota": "Presentar nuestras peticiones a Dios con gratitud trae una paz que supera todo entendimiento." },
+        { "referencia": "Mateo 7:7-11", "nota": "Pedid y se os dará; el Padre da buenas cosas a quienes le piden." }
+      ]
+    },
+    {
+      "titulo": "Fuertes en la tentación",
+      "reflexion": "José estaba lejos de casa, sin que nadie lo viera, y aun así dijo no. Su fuerza no venía de las reglas, sino de su relación con Dios. Él también da la salida en nuestra prueba.",
+      "citas": [
+        { "referencia": "Génesis 39:7-12", "nota": "José rechaza la tentación preguntando cómo podría pecar contra Dios." },
+        { "referencia": "1 Corintios 10:13", "nota": "Dios es fiel y con la tentación dará también la salida." }
+      ]
+    },
+    {
+      "titulo": "Servir a los demás",
+      "reflexion": "Jesús tomó una toalla y lavó los pies de sus discípulos, incluso los de quien lo traicionaría. La grandeza en su reino se mide en servicio. ¿A quién puedes servir esta semana?",
+      "citas": [
+        { "referencia": "Juan 13:1-15", "nota": "Jesús lava los pies a sus discípulos y les pide hacer lo mismo unos con otros." },
+        { "referencia": "Mateo 25:34-40", "nota": "Lo que hacemos por el más pequeño, lo hacemos por Jesús." },
+        { "referencia": "Gálatas 6:2", "nota": "Sobrellevar los unos las cargas de los otros." }
+      ]
+    },
+    {
+      "titulo": "Esperar en el Señor",
+      "reflexion": "Abraham esperó años la promesa de un hijo; a veces dudó y se equivocó, pero Dios cumplió. Los tiempos de Dios no son los nuestros, pero su palabra no falla.",
+      "citas": [
+        { "referencia": "Génesis 21:1-7", "nota": "Dios cumple a Abraham y Sara la promesa de un hijo en su vejez." },
+        { "referencia": "Salmo 27:13-14", "nota": "Aguarda al Señor, esfuérzate y aliéntese tu corazón." },
+        { "referencia": "Romanos 8:28", "nota": "A los que aman a Dios, todas las cosas les ayudan a bien." }
+      ]
+    },
+    {
+      "titulo": "Gozo que no depende de todo",
+      "reflexion": "Habacuc decidió alegrarse en Dios aunque no hubiera cosecha ni ganado. El gozo cristiano no niega el dolor, pero se apoya en algo más firme que las circunstancias.",
+      "citas": [
+        { "referencia": "Habacuc 3:17-19", "nota": "Aunque falte todo, el profeta se alegra en el Dios de su salvación." },
+        { "referencia": "Filipenses 4:11-13", "nota": "Pablo aprendió a estar contento en toda situación; todo lo puede en Cristo." }
+      ]
+    }
+  ],
+  "iglesia": [
+    {
+      "titulo": "Un cuerpo, muchos miembros",
+      "reflexion": "Ningún miembro del cuerpo es inútil ni puede decir que no necesita a los demás. En la iglesia cada uno tiene un lugar y un don. Tu presencia importa.",
+      "citas": [
+        { "referencia": "1 Corintios 12:12-27", "nota": "La iglesia es un cuerpo con muchos miembros que se necesitan mutuamente." },
+        { "referencia": "Romanos 12:4-8", "nota": "Tenemos diferentes dones según la gracia que nos fue dada." }
+      ]
+    },
+    {
+      "titulo": "Id y haced discípulos",
+      "reflexion": "La última instrucción de Jesús no fue quedarse cómodos, sino ir. La misión empieza en casa, en el barrio, en el trabajo: allí donde Dios ya te puso.",
+      "citas": [
+        { "referencia": "Mateo 28:18-20", "nota": "Jesús envía a sus discípulos a todas las naciones y promete estar con ellos siempre." },
+        { "referencia": "Romanos 10:13-15", "nota": "¿Cómo oirán si no hay quién les predique? Hermosos son los pies de los que anuncian buenas nuevas." },
+        { "referencia": "Apocalipsis 14:6-7", "nota": "Un mensaje eterno es anunciado a toda nación, tribu, lengua y pueblo." }
+      ]
+    },
+    {
+      "titulo": "La iglesia primitiva",
+      "reflexion": "Los primeros cristianos perseveraban en la enseñanza, la comunión, el partimiento del pan y la oración. Compartían lo que tenían y Dios añadía personas cada día.",
+      "citas": [
+        { "referencia": "Hechos 2:42-47", "nota": "La iglesia naciente vivía en comunión, oración y generosidad, y crecía cada día." },
+        { "referencia": "Hebreos 10:24-25", "nota": "No dejar de congregarnos; animarnos unos a otros al amor y las buenas obras." }
+      ]
+    },
+    {
+      "titulo": "Unidos en amor",
+      "reflexion": "Jesús oró para que sus seguidores fueran uno, y dijo que el mundo nos reconocería por el amor entre nosotros. La unidad no es uniformidad, sino amor que supera diferencias.",
+      "citas": [
+        { "referencia": "Juan 17:20-23", "nota": "Jesús ora para que todos sus seguidores sean uno, para que el mundo crea." },
+        { "referencia": "Juan 13:34-35", "nota": "En esto conocerán todos que sois mis discípulos: si os amáis unos a otros." },
+        { "referencia": "Efesios 4:1-6", "nota": "Guardar la unidad del Espíritu en el vínculo de la paz." }
+      ]
+    },
+    {
+      "titulo": "Fieles hasta el fin",
+      "reflexion": "A las iglesias de Apocalipsis Jesús les habla con amor y con franqueza. A quien venza le promete grandes cosas. La fidelidad diaria de una congregación es preciosa para él.",
+      "citas": [
+        { "referencia": "Apocalipsis 2:8-10", "nota": "Jesús anima a la iglesia de Esmirna: sé fiel hasta la muerte y te daré la corona de la vida." },
+        { "referencia": "Apocalipsis 14:12", "nota": "Aquí está la paciencia de los santos que guardan los mandamientos de Dios y la fe de Jesús." }
+      ]
+    }
+  ],
+  "hogar": [
+    {
+      "titulo": "Mi casa y yo serviremos al Señor",
+      "reflexion": "Josué tomó una decisión por su familia en público. La fe en el hogar no se hereda automáticamente: se elige, se practica y se enseña cada día con el ejemplo.",
+      "citas": [
+        { "referencia": "Josué 24:14-15", "nota": "Josué declara: 'Yo y mi casa serviremos al Señor'." },
+        { "referencia": "Deuteronomio 6:4-9", "nota": "Las palabras de Dios se enseñan a los hijos en casa, en el camino, al acostarse y al levantarse." }
+      ]
+    },
+    {
+      "titulo": "Amor que edifica el hogar",
+      "reflexion": "El amor que describe Pablo no es solo un sentimiento de boda: es paciencia en el día difícil, perdón después de la discusión y bondad en lo cotidiano.",
+      "citas": [
+        { "referencia": "1 Corintios 13:4-7", "nota": "El amor es paciente y bondadoso, no guarda rencor, todo lo soporta." },
+        { "referencia": "Efesios 5:21-25", "nota": "Someterse unos a otros y amarse como Cristo amó a la iglesia." },
+        { "referencia": "Colosenses 3:12-14", "nota": "Vestirse de compasión, humildad y paciencia, y sobre todo de amor." }
+      ]
+    },
+    {
+      "titulo": "Instruir al niño",
+      "reflexion": "Timoteo aprendió la fe de su abuela Loida y su madre Eunice. Lo que se siembra en casa con amor y constancia da fruto por generaciones.",
+      "citas": [
+        { "referencia": "2 Timoteo 1:5", "nota": "La fe sincera de Timoteo vivió primero en su abuela y en su madre." },
+        { "referencia": "Proverbios 22:6", "nota": "Instruye al niño en su camino y aun cuando sea viejo no se apartará de él." }
+      ]
+    },
+    {
+      "titulo": "Jesús en una boda",
+      "reflexion": "El primer milagro de Jesús fue en una fiesta familiar, para que no faltara la alegría. Él se interesa por las alegrías y necesidades del hogar. Invítalo a tu casa.",
+      "citas": [
+        { "referencia": "Juan 2:1-11", "nota": "En las bodas de Caná Jesús convierte el agua en vino a pedido de su madre." },
+        { "referencia": "Salmo 127:1", "nota": "Si el Señor no edifica la casa, en vano trabajan los que la edifican." }
+      ]
+    },
+    {
+      "titulo": "Honrar padres e hijos",
+      "reflexion": "El quinto mandamiento viene con una promesa, y Pablo añade un llamado a los padres a no provocar a sus hijos. El respeto en el hogar va en ambas direcciones.",
+      "citas": [
+        { "referencia": "Éxodo 20:12", "nota": "Honra a tu padre y a tu madre para que tus días se alarguen." },
+        { "referencia": "Efesios 6:1-4", "nota": "Hijos, obedeced a vuestros padres; padres, criad a los hijos en la disciplina y amonestación del Señor." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Video</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+    #jugador, iframe { width: 100%; height: 100%; border: 0; display: block; }
+  </style>
+</head>
+<body>
+  <!-- Reproductor de YouTube para la ventana flotante.
+       Va en una página propia (con dirección localhost:3060) porque YouTube rechaza
+       los reproductores que no indican desde qué página se ven, y la ventana flotante
+       de Chrome no tiene dirección propia. La app lo controla desde afuera. -->
+  <div id="jugador"></div>
+  <script>
+    // Promesa con la API de YouTube cargada
+    const apiLista = new Promise((resolve, reject) => {
+      window.onYouTubeIframeAPIReady = () => resolve(window.YT);
+      const script = document.createElement('script');
+      script.src = 'https://www.youtube.com/iframe_api';
+      script.onerror = () => reject(new Error('No se pudo cargar YouTube. ¿Hay internet?'));
+      document.head.append(script);
+    });
+
+    // La app llama a esto con sus funciones para enterarse de los cambios del video
+    window.crearJugador = async ({ alCambiarEstado, alError }) => {
+      const YT = await apiLista;
+      return new Promise((resolve) => {
+        const jugador = new YT.Player('jugador', {
+          host: 'https://www.youtube-nocookie.com',
+          playerVars: { rel: 0, playsinline: 1, origin: location.origin },
+          events: {
+            onReady: () => resolve(jugador),
+            onStateChange: (e) => alCambiarEstado?.(e),
+            onError: (e) => alError?.(e.data),
+          },
+        });
+      });
+    };
+  </script>
+</body>
+</html>

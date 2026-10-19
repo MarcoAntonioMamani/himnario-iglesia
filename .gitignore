@@ -1,0 +1,20 @@
+# Archivos bajados o generados al usar la app (se recrean solos)
+descargas/
+datos/catalogo.json
+datos/musica-cache.json
+datos/youtube-titulos.json
+
+# Datos propios de cada instalación
+datos/favoritos.json
+datos/mis-meditaciones.json
+datos/mis-letras.json
+
+# Audios pesados que se copian a mano
+musica-fondo/
+
+# Temporales de escritura
+*.tmp
+*.part
+
+# Configuración local de herramientas
+.claude/

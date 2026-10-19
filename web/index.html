@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2b5d8a">
+  <title>Himnario</title>
+  <link rel="icon" href="icono.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <!-- Vista: lista de himnos -->
+  <section id="vista-lista" class="vista activa">
+    <header class="barra">
+      <h1>Himnario</h1>
+      <button id="btn-fondo" class="icono boton-fondo" title="Música de fondo">🌙</button>
+      <button id="btn-ir-musica" class="boton tonal-chico" title="Música de Google Drive">♫ Música</button>
+      <button id="btn-ir-videos" class="boton tonal-chico" title="Videos de YouTube">▶ Videos</button>
+      <button id="btn-actualizar" class="icono" title="Actualizar lista de himnos (necesita internet)">⟳</button>
+    </header>
+
+    <div class="buscador">
+      <input id="buscar" type="search" inputmode="search" placeholder="Número o título del himno" autocomplete="off">
+    </div>
+
+    <nav class="pestanas" role="tablist">
+      <button class="pestana activa" data-filtro="todos" role="tab">Todos</button>
+      <button class="pestana" data-filtro="favoritos" role="tab">♥ Favoritos</button>
+      <button class="pestana" data-filtro="descargados" role="tab">⬇ Sin internet</button>
+    </nav>
+
+    <div class="chips" id="temas"></div>
+
+    <div id="acciones-favoritos" class="acciones-lista" hidden>
+      <button id="btn-bajar-favoritos" class="boton tonal">⬇ Guardar todos mis favoritos para usarlos sin internet</button>
+    </div>
+
+    <ul id="lista" class="lista"></ul>
+    <p id="vacio" class="vacio" hidden></p>
+  </section>
+
+  <!-- Vista: himno -->
+  <section id="vista-himno" class="vista">
+    <header class="barra">
+      <button id="btn-volver" class="icono" title="Volver">←</button>
+      <h1 id="h-titulo"></h1>
+      <button id="btn-favorito" class="icono favorito" title="Favorito">♡</button>
+    </header>
+
+    <div class="contenido">
+      <p id="h-tema" class="subtitulo"></p>
+
+      <div class="reproductor tarjeta">
+        <div class="segmentado" role="radiogroup">
+          <button data-tipo="cantado" class="activo">Cantado</button>
+          <button data-tipo="instrumental">Instrumental</button>
+        </div>
+        <div class="controles-audio" data-lugar="himno"></div>
+        <div class="estado-descarga">
+          <span id="h-offline"></span>
+          <button id="btn-descargar" class="boton texto">⬇ Guardar sin internet</button>
+        </div>
+      </div>
+
+      <div class="titulo-seccion">
+        <h2>Letra</h2>
+        <button id="btn-presentacion" class="boton lleno" title="Letra en grande, sincronizada con el audio">🎬 Presentación</button>
+        <a id="enlace-letra" class="boton texto" target="_blank" rel="noopener">Buscar letra en himnario.net ↗</a>
+      </div>
+      <pre id="letra-texto" class="letra-texto tarjeta" hidden></pre>
+      <div id="letra" class="letra"></div>
+      <button id="btn-editar-letra" class="boton texto">✎ Escribir o pegar la letra en texto</button>
+      <form id="form-letra" class="tarjeta" hidden>
+        <label>Letra (se guarda en esta PC y se muestra en lugar de las imágenes)
+          <textarea name="letra" rows="12" maxlength="20000"></textarea></label>
+        <div class="fila">
+          <button type="submit" class="boton lleno">Guardar</button>
+          <button type="button" id="btn-cancelar-letra" class="boton texto">Cancelar</button>
+        </div>
+      </form>
+      <div id="visor" class="visor" hidden><img alt=""></div>
+
+      <h2>Meditación</h2>
+      <article id="meditacion" class="tarjeta meditacion"></article>
+      <button id="btn-editar-meditacion" class="boton texto">✎ Escribir mi propia meditación para este himno</button>
+
+      <form id="form-meditacion" class="tarjeta" hidden>
+        <label>Título <input name="titulo" maxlength="200"></label>
+        <label>Reflexión <textarea name="reflexion" rows="4" maxlength="5000"></textarea></label>
+        <label>Citas bíblicas (una por línea, ej.: <em>Juan 3:16</em> o <em>Salmo 23</em>)
+          <textarea name="citas" rows="3"></textarea></label>
+        <div class="fila">
+          <button type="submit" class="boton lleno">Guardar</button>
+          <button type="button" id="btn-restaurar" class="boton texto">Volver a la meditación original</button>
+          <button type="button" id="btn-cancelar" class="boton texto">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Vista: videos de YouTube -->
+  <section id="vista-videos" class="vista">
+    <header class="barra">
+      <button id="btn-volver-videos" class="icono" title="Volver">←</button>
+      <h1>Videos</h1>
+    </header>
+
+    <div class="contenido">
+      <div id="reproductor-video" class="reproductor-video" hidden>
+        <!-- Hueco donde se ubica el video cuando estás en esta pantalla -->
+        <div id="hueco-video" class="marco-video"></div>
+        <p id="titulo-video" class="subtitulo"></p>
+        <div id="contenido-lista" hidden>
+          <h2 id="titulo-contenido-lista">Videos de la lista</h2>
+          <ul id="videos-de-lista" class="lista-videos"></ul>
+        </div>
+      </div>
+
+      <form id="form-video" class="tarjeta agregar-video">
+        <label>Pega enlaces de YouTube (videos o una lista de reproducción; puedes pegar varios, uno por línea)
+          <textarea name="url" rows="2" placeholder="https://www.youtube.com/watch?v=...  o  https://www.youtube.com/playlist?list=..."></textarea></label>
+        <button type="submit" class="boton lleno">Agregar</button>
+      </form>
+
+      <p class="nota-videos">Los videos se ven con el reproductor de YouTube y necesitan internet.</p>
+      <ul id="lista-videos" class="lista-videos"></ul>
+      <p id="vacio-videos" class="vacio" hidden>Todavía no agregaste videos. Pega un enlace arriba.</p>
+    </div>
+  </section>
+
+  <!-- Vista: música de Google Drive -->
+  <section id="vista-musica" class="vista">
+    <header class="barra">
+      <button id="btn-volver-musica" class="icono" title="Volver">←</button>
+      <h1>Música</h1>
+      <button id="btn-recargar-musica" class="icono" title="Volver a leer las carpetas de Drive">⟳</button>
+    </header>
+
+    <div class="buscador">
+      <input id="buscar-musica" type="search" placeholder="Buscar canción" autocomplete="off">
+    </div>
+
+    <div class="contenido">
+      <div class="fila acciones-musica">
+        <button id="btn-aleatorio" class="boton tonal-chico" aria-pressed="false">🔀 Aleatorio: no</button>
+        <button id="btn-guardar-musica" class="boton tonal-chico">⬇ Guardar todo sin internet</button>
+      </div>
+      <p id="estado-musica" class="nota-videos"></p>
+      <ul id="lista-musica" class="lista lista-musica"></ul>
+      <p id="vacio-musica" class="vacio" hidden>No hay canciones.</p>
+
+      <details class="tarjeta carpetas-musica">
+        <summary>Carpetas de Google Drive</summary>
+        <ul id="lista-carpetas" class="lista-carpetas"></ul>
+        <form id="form-carpeta">
+          <label>Agregar otra carpeta pública (pega el enlace de compartir)
+            <input name="url" placeholder="https://drive.google.com/drive/folders/..."></label>
+          <button type="submit" class="boton lleno">Agregar carpeta</button>
+        </form>
+      </details>
+    </div>
+
+    <!-- Reproductor fijo abajo -->
+    <div id="barra-musica" class="barra-musica" hidden>
+      <div class="ahora">
+        <strong id="musica-titulo"></strong>
+        <small id="musica-carpeta"></small>
+      </div>
+      <div class="controles">
+        <button id="btn-anterior" class="icono" title="Anterior">⏮</button>
+        <button id="btn-siguiente" class="icono" title="Siguiente">⏭</button>
+        <button class="icono btn-ventana" title="Ventana flotante (siempre encima)">⧉</button>
+      </div>
+      <div class="controles-audio" data-lugar="musica"></div>
+    </div>
+  </section>
+
+  <!-- Presentación: la letra en grande, cambiando de página en el segundo exacto del audio -->
+  <div id="presentacion" class="presentacion" hidden role="dialog" aria-label="Presentación del himno">
+    <div class="pres-escenario">
+      <img id="pres-a" class="pres-pagina visible" alt="">
+      <img id="pres-b" class="pres-pagina" alt="">
+    </div>
+    <div class="pres-arriba">
+      <span id="pres-titulo"></span>
+      <div>
+        <button id="pres-pantalla" class="dock-boton" title="Pantalla completa (para el proyector)">⛶</button>
+        <button id="pres-cerrar" class="dock-boton" title="Cerrar (Esc)">✕</button>
+      </div>
+    </div>
+    <div class="pres-abajo">
+      <button id="pres-anterior" class="dock-boton" title="Página anterior (←)">⏮</button>
+      <button id="pres-play" class="dock-boton pres-play" title="Reproducir o pausar (espacio)">▶</button>
+      <button id="pres-siguiente" class="dock-boton" title="Página siguiente (→)">⏭</button>
+      <span id="pres-tiempo" class="pres-tiempo">0:00</span>
+      <input id="pres-barra" class="barra-fina" type="range" min="0" max="1000" value="0" aria-label="Posición">
+      <span id="pres-pagina-num" class="pres-tiempo">1/1</span>
+    </div>
+  </div>
+
+  <!-- Motor único de audio (himnos y música); los controles de cada pantalla lo manejan -->
+  <audio id="motor" preload="none" hidden></audio>
+
+  <!-- Mini reproductor flotante de audio -->
+  <div id="mini-audio" class="mini-audio" hidden role="region" aria-label="Reproductor flotante">
+    <input id="mini-barra" class="barra-fina" type="range" min="0" max="1000" value="0" step="1" aria-label="Posición">
+    <button id="mini-abrir" class="mini-info" title="Abrir en pantalla completa">
+      <span id="mini-icono" class="mini-icono">♫</span>
+      <span class="mini-textos"><strong id="mini-titulo"></strong><small><span id="mini-sub"></span> · <span id="mini-tiempo">0:00 / 0:00</span></small></span>
+    </button>
+    <button id="mini-anterior" class="icono" title="Anterior">⏮</button>
+    <button id="mini-play" class="icono mini-play" title="Pausar">⏸</button>
+    <button id="mini-siguiente" class="icono" title="Siguiente">⏭</button>
+    <button class="icono btn-ventana" title="Ventana flotante (siempre encima)">⧉</button>
+    <button id="mini-cerrar" class="icono" title="Cerrar reproductor">✕</button>
+  </div>
+
+  <!-- Video de YouTube: se ubica sobre el hueco de su pantalla o flota en una esquina -->
+  <div id="dock-video" class="dock-video" hidden>
+    <div id="player-video"></div>
+    <div class="dock-capa" id="dock-capa" title="Abrir en pantalla completa">
+      <button id="dock-play" class="dock-boton dock-centro" title="Pausar">⏸</button>
+      <div class="dock-arriba">
+        <button class="dock-boton btn-ventana" title="Ventana flotante (siempre encima)">⧉</button>
+        <button id="dock-fullscreen" class="dock-boton" title="Pantalla completa">⛶</button>
+        <button id="dock-cerrar" class="dock-boton" title="Cerrar">✕</button>
+      </div>
+      <div class="dock-abajo" id="dock-abajo">
+        <span id="dock-tiempo">0:00</span>
+        <input id="dock-barra" class="barra-fina" type="range" min="0" max="1000" value="0" step="1" aria-label="Posición del video">
+        <span id="dock-total">0:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ajustes de la música de fondo -->
+  <dialog id="dialogo-fondo" class="dialogo">
+    <form method="dialog" class="dialogo-contenido">
+      <h2>🌙 Música de fondo</h2>
+      <p class="nota-videos">Suena suave cuando pausas o termina lo que estaba sonando, y se apaga sola cuando reproduces otra cosa.</p>
+
+      <label class="interruptor">
+        <input type="checkbox" id="fondo-activo">
+        <span>Activar automáticamente</span>
+      </label>
+
+      <label>Volumen
+        <input type="range" id="fondo-volumen" min="0.05" max="0.8" step="0.05"></label>
+
+      <label>Empezar después de
+        <select id="fondo-espera">
+          <option value="1">1 segundo</option>
+          <option value="3">3 segundos</option>
+          <option value="5">5 segundos</option>
+          <option value="10">10 segundos</option>
+        </select></label>
+
+      <fieldset>
+        <legend>Qué suena de fondo</legend>
+        <div id="fondo-pistas" class="fondo-pistas"></div>
+        <p class="nota-videos">Para agregar otra (por ejemplo una pista instrumental), súbela a la carpeta de Drive y márcala con 🌙 en ♫ Música.</p>
+      </fieldset>
+
+      <div class="fila">
+        <button type="button" id="fondo-probar" class="boton lleno">▶ Probar ahora</button>
+        <button value="cerrar" class="boton texto">Cerrar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="aviso" class="aviso" role="status" hidden></div>
+  <footer class="credito">Developed by Marco Antonio Mamani</footer>
+
+  <script src="fondo.js"></script>
+  <script src="app.js"></script>
+  <script src="flotante.js"></script>
+</body>
+</html>

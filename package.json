@@ -1,0 +1,10 @@
+{
+  "name": "himnario-offline",
+  "version": "1.0.0",
+  "description": "Himnario con letra completa, meditaciones y favoritos que funciona sin internet",
+  "private": true,
+  "type": "module",
+  "main": "servidor.js",
+  "scripts": { "start": "node servidor.js" },
+  "engines": { "node": ">=20" }
+}
