@@ -8,21 +8,23 @@
 // Developed by Marco Antonio Mamani
 
 const Fondo = (() => {
-  const VERSION_AJUSTES = 3;
+  const VERSION_AJUSTES = 4;
   // Pista prioritaria: va primera en la lista y es la elegida por defecto.
   // Si el archivo no está en la carpeta musica-fondo, se usa Sublime gracia.
   const PISTA_PRIORITARIA = 'local:LlamadoSermon.mp3';
   const PISTA_RESPALDO = 'sublime-gracia';
-  const AJUSTES_POR_DEFECTO = { version: VERSION_AJUSTES, activo: true, volumen: 0.25, espera: 3, pista: PISTA_PRIORITARIA, canciones: [] };
+  // Desactivada por defecto: solo suena sola si se activa en 🌙
+  const AJUSTES_POR_DEFECTO = { version: VERSION_AJUSTES, activo: false, volumen: 0.25, espera: 3, pista: PISTA_PRIORITARIA, canciones: [] };
   let ajustes = { ...AJUSTES_POR_DEFECTO };
   try {
     const guardados = JSON.parse(localStorage.getItem('himnario-fondo') || '{}');
     delete guardados.fuente; // formato anterior
+    const versionGuardada = guardados.version || 1;
     // Ajustes guardados antes de que existiera la pista prioritaria: se pasa a ella
-    if ((guardados.version || 1) < VERSION_AJUSTES) {
-      guardados.pista = PISTA_PRIORITARIA;
-      guardados.version = VERSION_AJUSTES;
-    }
+    if (versionGuardada < 3) guardados.pista = PISTA_PRIORITARIA;
+    // Desde la versión 4 el fondo viene desactivado: se apaga una vez en los equipos que lo tenían activo
+    if (versionGuardada < 4) guardados.activo = false;
+    guardados.version = VERSION_AJUSTES;
     ajustes = { ...AJUSTES_POR_DEFECTO, ...guardados };
   } catch {
     /* sin almacenamiento: se usan los valores por defecto */

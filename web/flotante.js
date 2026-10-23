@@ -110,7 +110,7 @@ const VentanaFlotante = (() => {
         sonando: !motor.paused,
         actual: motor.currentTime,
         total: motor.duration,
-        conPasos: pista.fuente === 'musica',
+        conPasos: tienePasos(),
       };
     }
     return null;
@@ -133,7 +133,7 @@ const VentanaFlotante = (() => {
   function paso(n) {
     const f = fuenteActual();
     if (!f?.conPasos) return;
-    if (f.tipo === 'audio') return otraCancion(n);
+    if (f.tipo === 'audio') return pasoDePista(n);
     // En listas de YouTube se saltan los videos marcados como no disponibles
     const total = idsDeLista.length;
     let i = yt().getPlaylistIndex();

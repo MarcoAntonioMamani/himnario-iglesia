@@ -1,0 +1,10 @@
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+.idea/
+.tmp/
+.kotlin/
+# La APK lleva dentro datos personales de la iglesia (cumpleaños, roles, líderes): no se sube
+*.apk

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#2b5d8a">
-  <title>Himnario</title>
+  <title>LasAmericas</title>
   <link rel="icon" href="icono.svg">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="estilos.css">
@@ -13,12 +13,23 @@
   <!-- Vista: lista de himnos -->
   <section id="vista-lista" class="vista activa">
     <header class="barra">
-      <h1>Himnario</h1>
+      <button id="btn-acerca" class="marca" title="Acerca de LasAmericas" style="background:none;border:none;color:inherit;padding:0;text-align:left">
+        <img src="icono.svg" alt="">
+        <h1>LasAmericas<small>Himnario de la iglesia</small></h1>
+      </button>
+      <button id="btn-roles" class="icono" title="Roles del sábado">📋</button>
+      <button id="btn-cumple" class="icono boton-cumple" title="Cumpleaños">🎂<span id="cumple-insignia" class="insignia" hidden></span></button>
       <button id="btn-fondo" class="icono boton-fondo" title="Música de fondo">🌙</button>
       <button id="btn-ir-musica" class="boton tonal-chico" title="Música de Google Drive">♫ Música</button>
       <button id="btn-ir-videos" class="boton tonal-chico" title="Videos de YouTube">▶ Videos</button>
-      <button id="btn-actualizar" class="icono" title="Actualizar lista de himnos (necesita internet)">⟳</button>
     </header>
+
+    <!-- Aviso de cumpleaños de hoy y de mañana -->
+    <div id="aviso-cumple" class="aviso-cumple" hidden>
+      <span class="aviso-cumple-icono">🎉</span>
+      <div id="aviso-cumple-texto" class="aviso-cumple-texto"></div>
+      <button id="aviso-cumple-cerrar" class="icono" title="Ocultar por hoy">✕</button>
+    </div>
 
     <div class="buscador">
       <input id="buscar" type="search" inputmode="search" placeholder="Número o título del himno" autocomplete="off">
@@ -33,11 +44,16 @@
     <div class="chips" id="temas"></div>
 
     <div id="acciones-favoritos" class="acciones-lista" hidden>
+      <div class="reproducir-favoritos">
+        <button id="btn-favoritos-orden" class="boton lleno">▶ Reproducir todo</button>
+        <button id="btn-favoritos-azar" class="boton tonal-chico">🔀 Aleatorio</button>
+      </div>
       <button id="btn-bajar-favoritos" class="boton tonal">⬇ Guardar todos mis favoritos para usarlos sin internet</button>
     </div>
 
     <ul id="lista" class="lista"></ul>
     <p id="vacio" class="vacio" hidden></p>
+    <p class="credito-lista">LasAmericas · Developer: <strong>Marco Antonio Mamani</strong></p>
   </section>
 
   <!-- Vista: himno -->
@@ -199,6 +215,26 @@
     </div>
   </div>
 
+  <!-- Barra de navegación inferior (estilo app de Android); aparece en pantallas angostas -->
+  <!-- Íconos de línea propios (heredan el color; el activo se rellena) -->
+  <nav id="nav-inferior" class="nav-inferior" aria-label="Secciones">
+    <button data-vista="vista-lista" aria-label="Himnos">
+      <span class="nav-icono"><svg viewBox="0 0 24 24"><path class="relleno" d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18a1 1 0 0 1 1 1v14H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5V4.5A1.5 1.5 0 0 1 6.5 3H19v16H6.5A1.5 1.5 0 0 0 5 20.5 1.5 1.5 0 0 0 6.5 22H19"/><path class="detalle" d="M14 7v5.2a1.8 1.8 0 1 1-1.2-1.7V7h2.7"/></svg></span>
+      <span class="nav-texto">Himnos</span></button>
+    <button data-vista="vista-roles" aria-label="Roles">
+      <span class="nav-icono"><svg viewBox="0 0 24 24"><rect class="relleno" x="4" y="5" width="16" height="16" rx="2.5"/><rect x="4" y="5" width="16" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M4 10h16"/><path class="detalle" d="M8 14h3M8 17h6"/></svg></span>
+      <span class="nav-texto">Roles</span></button>
+    <button data-vista="vista-cumple" aria-label="Cumpleaños">
+      <span class="nav-icono"><svg viewBox="0 0 24 24"><path class="relleno" d="M4 13a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7H4z"/><path d="M4 20v-7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7M3 20h18M12 11V8"/><path class="detalle" d="M4 15.5c1.3 1 2.7 1 4 0s2.7-1 4 0 2.7 1 4 0 2.7-1 4 0"/><path class="llama" d="M12 3.2c.9 1 1.4 1.8 1.4 2.5a1.4 1.4 0 0 1-2.8 0c0-.7.5-1.5 1.4-2.5z"/></svg><span id="nav-insignia" class="insignia" hidden></span></span>
+      <span class="nav-texto">Cumpleaños</span></button>
+    <button data-vista="vista-musica" aria-label="Música">
+      <span class="nav-icono"><svg viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect class="relleno" x="3" y="14" width="5" height="7" rx="2"/><rect class="relleno" x="16" y="14" width="5" height="7" rx="2"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/></svg></span>
+      <span class="nav-texto">Música</span></button>
+    <button data-vista="vista-videos" aria-label="Videos">
+      <span class="nav-icono"><svg viewBox="0 0 24 24"><rect class="relleno" x="2.5" y="5" width="19" height="14" rx="4"/><rect x="2.5" y="5" width="19" height="14" rx="4"/><path class="detalle triangulo" d="M10 9.2v5.6l4.6-2.8z"/></svg></span>
+      <span class="nav-texto">Videos</span></button>
+  </nav>
+
   <!-- Motor único de audio (himnos y música); los controles de cada pantalla lo manejan -->
   <audio id="motor" preload="none" hidden></audio>
 
@@ -234,6 +270,94 @@
     </div>
   </div>
 
+  <!-- Vista: cumpleaños -->
+  <section id="vista-cumple" class="vista">
+    <header class="barra">
+      <button id="btn-volver-cumple" class="icono" title="Volver">←</button>
+      <h1>🎂 Cumpleaños</h1>
+    </header>
+    <div class="contenido">
+      <div class="estado-hoja"></div>
+      <div id="cumple-resumen" class="cumple-resumen"></div>
+      <div class="buscador" style="padding:12px 0 4px">
+        <input id="buscar-cumple" type="search" placeholder="Buscar por nombre" autocomplete="off">
+      </div>
+      <div id="cumple-listas"></div>
+      <p class="nota-videos" id="cumple-notificaciones"></p>
+    </div>
+  </section>
+
+  <!-- Vista: roles del sábado (predicador, acompañantes y flores) -->
+  <section id="vista-roles" class="vista">
+    <header class="barra">
+      <button id="btn-volver-roles" class="icono" title="Volver">←</button>
+      <h1>📋 Iglesia</h1>
+    </header>
+    <nav class="pestanas" role="tablist">
+      <button class="pestana activa" data-panel="panel-roles" role="tab">Roles de culto</button>
+      <button class="pestana" data-panel="panel-lideres" role="tab">Líderes</button>
+    </nav>
+
+    <!-- Líderes por gestión -->
+    <div id="panel-lideres" class="contenido" hidden>
+      <div class="estado-hoja"></div>
+      <div class="lideres-gestion">
+        <label for="lideres-gestion">Gestión</label>
+        <select id="lideres-gestion"></select>
+      </div>
+      <div class="buscador" style="padding:4px 0 8px">
+        <input id="buscar-lider" type="search" placeholder="Buscar por nombre o cargo" autocomplete="off">
+      </div>
+      <ul id="lista-lideres" class="lista-lideres"></ul>
+      <p id="vacio-lideres" class="vacio" hidden></p>
+    </div>
+
+    <div id="panel-roles" class="contenido">
+      <div class="estado-hoja"></div>
+      <div id="roles-proximo" class="roles-proximo"></div>
+      <div class="roles-mes">
+        <button id="roles-mes-anterior" class="icono" title="Mes anterior">‹</button>
+        <h2 id="roles-mes-titulo"></h2>
+        <button id="roles-mes-siguiente" class="icono" title="Mes siguiente">›</button>
+      </div>
+      <div id="roles-anciano" class="roles-anciano"></div>
+      <input id="roles-foto-archivo" type="file" accept="image/*" hidden>
+      <div id="roles-sabados" class="roles-sabados"></div>
+      <p class="nota-videos">Los roles se editan en la hoja de Google de la iglesia (✎). La app la vuelve a leer al abrirse.</p>
+    </div>
+  </section>
+
+  <!-- Editar los roles de un sábado -->
+  <dialog id="dialogo-rol" class="dialogo">
+    <form id="form-rol" method="dialog" class="dialogo-contenido">
+      <h2 id="rol-titulo">Sábado</h2>
+      <label><span id="rol-etiqueta-predicador">Predicador (mañana)</span> <input name="predicador" maxlength="200" autocomplete="off"></label>
+      <div id="rol-campos-sabado">
+        <label>Acompañantes <input name="acompanantes" maxlength="200" autocomplete="off" placeholder="Ej.: Richard Huanca - Jairo Morales"></label>
+        <label>JA (tarde) <input name="ja" maxlength="200" autocomplete="off"></label>
+        <label>Flores <input name="flores" maxlength="200" autocomplete="off"></label>
+      </div>
+      <div class="fila">
+        <button type="submit" class="boton lleno">Guardar</button>
+        <button type="button" id="rol-cancelar" class="boton texto">Cancelar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Acerca de -->
+  <dialog id="dialogo-acerca" class="dialogo">
+    <form method="dialog" class="dialogo-contenido acerca">
+      <img src="icono.svg" alt="" class="acerca-icono">
+      <h2>LasAmericas</h2>
+      <p class="nota-videos">Himnario de la iglesia: himnos con letra sincronizada, meditaciones, música, videos y cumpleaños.</p>
+      <p class="acerca-dev">Developer<br><strong>Marco Antonio Mamani</strong></p>
+      <div class="fila" style="justify-content:center">
+        <button type="button" id="btn-actualizar" class="boton tonal-chico" title="Necesita internet">⟳ Actualizar lista de himnos</button>
+        <button value="cerrar" class="boton lleno">Cerrar</button>
+      </div>
+    </form>
+  </dialog>
+
   <!-- Ajustes de la música de fondo -->
   <dialog id="dialogo-fondo" class="dialogo">
     <form method="dialog" class="dialogo-contenido">
@@ -242,8 +366,9 @@
 
       <label class="interruptor">
         <input type="checkbox" id="fondo-activo">
-        <span>Activar automáticamente</span>
+        <span>Que suene sola al pausar o terminar algo</span>
       </label>
+      <p class="nota-videos" style="margin-top:-6px">Desmárcalo si no quieres que se active automáticamente; igual puedes ponerla con "Probar ahora".</p>
 
       <label>Volumen
         <input type="range" id="fondo-volumen" min="0.05" max="0.8" step="0.05"></label>
@@ -270,7 +395,7 @@
   </dialog>
 
   <div id="aviso" class="aviso" role="status" hidden></div>
-  <footer class="credito">Developed by Marco Antonio Mamani</footer>
+  <footer class="credito">LasAmericas · Developer: <strong>Marco Antonio Mamani</strong></footer>
 
   <script src="fondo.js"></script>
   <script src="app.js"></script>

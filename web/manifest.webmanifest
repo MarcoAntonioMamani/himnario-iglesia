@@ -1,9 +1,10 @@
 {
-  "name": "Himnario",
-  "short_name": "Himnario",
+  "name": "LasAmericas",
+  "short_name": "LasAmericas",
+  "description": "Himnario de la iglesia. Developer: Marco Antonio Mamani",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8f9ff",
-  "theme_color": "#2b5d8a",
+  "background_color": "#f4f7ff",
+  "theme_color": "#1e5bd8",
   "icons": [{ "src": "icono.svg", "sizes": "any", "type": "image/svg+xml" }]
 }

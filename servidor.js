@@ -28,6 +28,8 @@ const CARPETA_DRIVE_INICIAL = { id: '1aNpvd4MlIA26NG1aT72XJM0j8ipiY5Iq', nombre:
 const EXTENSIONES_AUDIO = /\.(mp3|mpeg|m4a|wav|ogg|oga|aac|flac|opus)$/i;
 // Carpeta para música de fondo propia: se copia aquí cualquier audio (o video mp4) y aparece en 🌙
 const CARPETA_FONDO = path.join(RAIZ, 'musica-fondo');
+// Fotos de los ancianos de turno (una por mes)
+const CARPETA_FOTOS = path.join(CARPETA_DATOS, 'fotos');
 const EXTENSIONES_FONDO = /\.(mp3|mpeg|m4a|mp4|wav|ogg|oga|aac|flac|opus|webm)$/i;
 
 const TEMAS = [
@@ -489,6 +491,176 @@ async function guardarCancion(cancion) {
   });
 }
 
+// ---------- datos compartidos desde Google Sheets ----------
+// La hoja de la iglesia (compartida "cualquier persona con el enlace", solo lectura) es la fuente
+// de roles, ancianos, cumpleaños y líderes. Se descarga cada pestaña como CSV, se convierte al
+// formato de siempre y se guarda en datos/*.json: si no hay internet se usa esa copia.
+
+const HOJA_ID = '1klO4DD1TQn3tZgQt3XIb5oLFUmiUYhTxItrss6NhXEU';
+const HOJA_URL = `https://docs.google.com/spreadsheets/d/${HOJA_ID}/edit`;
+const ARCHIVO_SINCRONIZACION = path.join(CARPETA_DATOS, 'sincronizacion.json');
+const DIAS_SEMANA = { domingo: 0, lunes: 1, martes: 2, miercoles: 3, jueves: 4, viernes: 5, sabado: 6 };
+const sinAcentos = (t) => String(t ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+// CSV con comillas, comas y saltos de línea dentro de los campos
+function leerCsv(texto) {
+  const filas = [];
+  let fila = [];
+  let campo = '';
+  let comillas = false;
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto[i];
+    if (comillas) {
+      if (c === '"' && texto[i + 1] === '"') { campo += '"'; i++; }
+      else if (c === '"') comillas = false;
+      else campo += c;
+    } else if (c === '"') comillas = true;
+    else if (c === ',') { fila.push(campo); campo = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && texto[i + 1] === '\n') i++;
+      fila.push(campo); filas.push(fila); fila = []; campo = '';
+    } else campo += c;
+  }
+  if (campo || fila.length) { fila.push(campo); filas.push(fila); }
+  const [cabecera = [], ...resto] = filas.filter((f) => f.some((x) => x.trim()));
+  // Cada fila como objeto, con los títulos sin acentos ni mayúsculas
+  const claves = cabecera.map(sinAcentos);
+  return resto.map((f) => Object.fromEntries(claves.map((k, j) => [k, (f[j] ?? '').trim()])));
+}
+
+async function bajarPestana(nombre) {
+  const url = `https://docs.google.com/spreadsheets/d/${HOJA_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(nombre)}`;
+  const r = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+  if (!r.ok) throw new Error(`Google respondió ${r.status} para «${nombre}»`);
+  const texto = await r.text();
+  if (/<html/i.test(texto.slice(0, 200))) throw new Error('La hoja no está compartida con enlace');
+  return leerCsv(texto);
+}
+
+// "03/10/2026" (día/mes/año) o "2026-10-03" -> "2026-10-03". Si se indica el día de la semana
+// y no coincide, se prueba mes/día (por si la hoja cambia de formato regional).
+function fechaIso(texto, diaSemana) {
+  const t = String(texto || '').trim();
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(t);
+  if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+  m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(t);
+  if (!m) return null;
+  const armar = (d, mes) => `${m[3]}-${String(mes).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  const valida = (iso) => !Number.isNaN(new Date(`${iso}T12:00`).getTime());
+  const opcion1 = armar(m[1], m[2]);
+  const opcion2 = armar(m[2], m[1]);
+  if (diaSemana != null && Number(m[2]) <= 12 && Number(m[1]) <= 12) {
+    if (new Date(`${opcion1}T12:00`).getDay() !== diaSemana && new Date(`${opcion2}T12:00`).getDay() === diaSemana) return opcion2;
+  }
+  return valida(opcion1) ? opcion1 : null;
+}
+
+function idDeArchivoDrive(enlace) {
+  const t = String(enlace || '');
+  return (/\/d\/([\w-]{10,})/.exec(t) || /[?&]id=([\w-]{10,})/.exec(t) || [])[1] || null;
+}
+
+let sincronizando = null;
+
+async function sincronizarHoja() {
+  if (sincronizando) return sincronizando; // si ya está en curso, se espera esa misma
+  sincronizando = (async () => {
+    const [filasRoles, filasAncianos, filasCumple, filasLideres] = await Promise.all(
+      ['Roles', 'Ancianos', 'Cumpleaños', 'Líderes'].map(bajarPestana)
+    );
+    const anterior = await leerJson(path.join(CARPETA_DATOS, 'roles.json'), { meses: {}, sabados: {}, miercoles: {} });
+
+    // Roles: sábados y miércoles
+    const roles = { meses: {}, sabados: {}, miercoles: {} };
+    const avisos = [];
+    for (const f of filasRoles) {
+      const diaTexto = sinAcentos(f['dia']);
+      const diaSemana = DIAS_SEMANA[diaTexto];
+      const fecha = fechaIso(f['fecha'], diaSemana);
+      if (!fecha) { if (f['fecha']) avisos.push(`Fecha no válida en Roles: ${f['fecha']}`); continue; }
+      const real = new Date(`${fecha}T12:00`).getDay();
+      const quien = f['predicador / a cargo'] || f['predicador'] || '';
+      if (real === 3) roles.miercoles[fecha] = { predicador: quien };
+      else if (real === 6) {
+        roles.sabados[fecha] = { predicador: quien, acompanantes: f['acompanantes'] || '', ja: f['ja tarde'] || '', flores: f['flores'] || '' };
+      } else avisos.push(`${f['fecha']} no es sábado ni miércoles`);
+    }
+
+    // Ancianos: nombre y foto (se baja de Drive si hay enlace; si no, se conserva la que había)
+    await fsp.mkdir(CARPETA_FOTOS, { recursive: true });
+    for (const f of filasAncianos) {
+      const anio = Number(f['ano'] || f['año']);
+      const mes = Number(f['mes']);
+      if (!anio || !mes || mes > 12) continue;
+      const clave = `${anio}-${String(mes).padStart(2, '0')}`;
+      const dato = { anciano: f['anciano de turno'] || '' };
+      const enlace = f['foto (enlace de google drive)'] || f['foto'] || '';
+      const idFoto = idDeArchivoDrive(enlace);
+      const archivoFoto = path.join(CARPETA_FOTOS, `anciano-${clave}.jpg`);
+      const previo = anterior.meses?.[clave] || {};
+      if (idFoto && previo.fotoId !== idFoto) {
+        try {
+          const r = await fetch(`https://drive.usercontent.google.com/download?id=${idFoto}&export=download`, { signal: AbortSignal.timeout(30_000) });
+          if (!r.ok || !(r.headers.get('content-type') || '').startsWith('image/')) throw new Error('no es una imagen pública');
+          await fsp.writeFile(archivoFoto, Buffer.from(await r.arrayBuffer()));
+          Object.assign(dato, { foto: Date.now(), fotoId: idFoto });
+        } catch (error) {
+          avisos.push(`No se pudo bajar la foto de ${clave}: ${error.message}`);
+          if (previo.foto) Object.assign(dato, { foto: previo.foto, fotoId: previo.fotoId });
+        }
+      } else if (previo.foto && (await existe(archivoFoto))) {
+        Object.assign(dato, { foto: previo.foto, ...(previo.fotoId && { fotoId: previo.fotoId }) });
+      }
+      roles.meses[clave] = dato;
+    }
+    await guardarJson(path.join(CARPETA_DATOS, 'roles.json'), roles);
+
+    const personas = filasCumple
+      .map((f) => ({ nombre: f['nombre'], dia: Number(f['dia']), mes: Number(f['mes']) }))
+      .filter((p) => p.nombre && p.dia >= 1 && p.dia <= 31 && p.mes >= 1 && p.mes <= 12)
+      .sort((a, b) => a.mes - b.mes || a.dia - b.dia || a.nombre.localeCompare(b.nombre, 'es'));
+    await guardarJson(path.join(CARPETA_DATOS, 'cumpleanos.json'), { origen: 'Google Sheets', personas });
+
+    const lideres = filasLideres
+      .map((f) => ({ gestion: f['gestion'], nombre: f['nombre'], cargo: f['cargo'], celular: f['celular'], enlaceFoto: f['foto'] || f['foto (enlace de google drive)'] || '' }))
+      .filter((l) => l.nombre && l.gestion);
+    // Foto de cada líder (opcional): se baja de Drive una sola vez por archivo
+    for (const l of lideres) {
+      const idFoto = idDeArchivoDrive(l.enlaceFoto);
+      delete l.enlaceFoto;
+      if (!idFoto) continue;
+      const nombre = `lider-${idFoto}.jpg`;
+      const destino = path.join(CARPETA_FOTOS, nombre);
+      try {
+        if (!(await existe(destino))) {
+          const r = await fetch(`https://drive.usercontent.google.com/download?id=${idFoto}&export=download`, { signal: AbortSignal.timeout(30_000) });
+          if (!r.ok || !(r.headers.get('content-type') || '').startsWith('image/')) throw new Error('no es una imagen pública');
+          await fsp.writeFile(destino, Buffer.from(await r.arrayBuffer()));
+        }
+        l.foto = nombre;
+      } catch (error) {
+        avisos.push(`No se pudo bajar la foto de ${l.nombre}: ${error.message}`);
+      }
+    }
+    await guardarJson(path.join(CARPETA_DATOS, 'lideres.json'), { lideres });
+
+    const resumen = {
+      ok: true, fecha: new Date().toISOString(), avisos,
+      totales: { sabados: Object.keys(roles.sabados).length, miercoles: Object.keys(roles.miercoles).length, ancianos: Object.keys(roles.meses).length, cumpleanos: personas.length, lideres: lideres.length },
+    };
+    await guardarJson(ARCHIVO_SINCRONIZACION, resumen);
+    return resumen;
+  })()
+    .catch(async (error) => {
+      const previo = await leerJson(ARCHIVO_SINCRONIZACION, {});
+      const resumen = { ...previo, ok: false, error: error.message, intento: new Date().toISOString() };
+      await guardarJson(ARCHIVO_SINCRONIZACION, resumen);
+      return resumen;
+    })
+    .finally(() => { sincronizando = null; });
+  return sincronizando;
+}
+
 // ---------- servidor HTTP ----------
 
 function responderJson(res, estado, datos) {
@@ -496,11 +668,11 @@ function responderJson(res, estado, datos) {
   res.end(JSON.stringify(datos));
 }
 
-async function leerCuerpo(req) {
+async function leerCuerpo(req, maximo = 100_000) {
   let texto = '';
   for await (const parte of req) {
     texto += parte;
-    if (texto.length > 100_000) throw new ErrorCliente(413, 'Cuerpo demasiado grande');
+    if (texto.length > maximo) throw new ErrorCliente(413, 'Cuerpo demasiado grande');
   }
   try {
     return texto ? JSON.parse(texto) : {};
@@ -572,8 +744,8 @@ async function manejar(req, res) {
 
   // /medios/:n/cantado.mp3  /medios/:n/instrumental.mp3  /medios/:n/letra-01.jpg
   // Si no está en la PC lo baja una vez y queda guardado para usarlo sin internet.
-  // (musica y fondo tienen su propio bloque más abajo)
-  if (partes[0] === 'medios' && partes[1] !== 'musica' && partes[1] !== 'fondo' && partes.length === 3) {
+  // (musica, fondo y foto tienen su propio bloque más abajo)
+  if (partes[0] === 'medios' && !['musica', 'fondo', 'foto'].includes(partes[1]) && partes.length === 3) {
     const himno = numeroValido(partes[1]);
     const audio = /^(cantado|instrumental)\.mp3$/.exec(partes[2]);
     const letra = /^letra-(\d{2})\.jpg$/.exec(partes[2]);
@@ -596,6 +768,12 @@ async function manejar(req, res) {
       throw new ErrorCliente(503, 'No está guardado en la PC y no hay internet para bajarlo');
     }
     throw new ErrorCliente(404, 'Archivo no reconocido');
+  }
+
+  // /medios/foto/anciano-AAAA-MM.jpg o lider-ID.jpg -> fotos de ancianos y líderes
+  if (partes[0] === 'medios' && partes[1] === 'foto' && partes[2]) {
+    if (!/^(anciano-\d{4}-\d{2}|lider-[\w-]{10,})\.jpg$/.test(partes[2])) throw new ErrorCliente(400, 'Archivo no válido');
+    return servirArchivo(req, res, path.join(CARPETA_FOTOS, partes[2]));
   }
 
   // /medios/fondo/:archivo -> música de fondo propia de la carpeta musica-fondo
@@ -633,6 +811,97 @@ async function manejar(req, res) {
   }
 
   const ruta = `${req.method} /${partes.slice(1).join('/')}`;
+
+  // Roles de cada sábado en la mañana (predicador, acompañantes, flores) y anciano de turno por mes
+  const ARCHIVO_ROLES = path.join(CARPETA_DATOS, 'roles.json');
+  const limpiar = (t, max = 200) => String(t ?? '').trim().slice(0, max);
+
+  if (ruta === 'GET /roles') {
+    return responderJson(res, 200, await leerJson(ARCHIVO_ROLES, { meses: {}, sabados: {} }));
+  }
+
+  if (req.method === 'PUT' && partes[1] === 'roles' && partes[2] === 'sabado' && partes[3]) {
+    const fecha = partes[3];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || new Date(`${fecha}T12:00`).getDay() !== 6) {
+      throw new ErrorCliente(400, 'La fecha debe ser un sábado (AAAA-MM-DD)');
+    }
+    const { predicador, acompanantes, ja, flores } = await leerCuerpo(req);
+    const roles = await leerJson(ARCHIVO_ROLES, { meses: {}, sabados: {} });
+    const dato = { predicador: limpiar(predicador), acompanantes: limpiar(acompanantes), ja: limpiar(ja), flores: limpiar(flores) };
+    // Todo vacío = se borra ese sábado
+    if (!Object.values(dato).some(Boolean)) delete roles.sabados[fecha];
+    else roles.sabados[fecha] = dato;
+    await guardarJson(ARCHIVO_ROLES, roles);
+    return responderJson(res, 200, roles);
+  }
+
+  // Miércoles de culto: quién lo dirige
+  if (req.method === 'PUT' && partes[1] === 'roles' && partes[2] === 'miercoles' && partes[3]) {
+    const fecha = partes[3];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || new Date(`${fecha}T12:00`).getDay() !== 3) {
+      throw new ErrorCliente(400, 'La fecha debe ser un miércoles (AAAA-MM-DD)');
+    }
+    const { predicador } = await leerCuerpo(req);
+    const roles = await leerJson(ARCHIVO_ROLES, { meses: {}, sabados: {} });
+    roles.miercoles = roles.miercoles || {};
+    if (limpiar(predicador)) roles.miercoles[fecha] = { predicador: limpiar(predicador) };
+    else delete roles.miercoles[fecha];
+    await guardarJson(ARCHIVO_ROLES, roles);
+    return responderJson(res, 200, roles);
+  }
+
+  // Foto del anciano de turno del mes (llega ya achicada desde la app, como JPEG en base64)
+  if (req.method === 'PUT' && partes[1] === 'roles' && partes[2] === 'mes' && partes[3] && partes[4] === 'foto') {
+    const mes = partes[3];
+    if (!/^\d{4}-\d{2}$/.test(mes)) throw new ErrorCliente(400, 'El mes debe ser AAAA-MM');
+    const { imagen } = await leerCuerpo(req, 3_000_000);
+    const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(String(imagen || ''));
+    if (!m) throw new ErrorCliente(400, 'Imagen no válida');
+    await fsp.mkdir(CARPETA_FOTOS, { recursive: true });
+    await fsp.writeFile(path.join(CARPETA_FOTOS, `anciano-${mes}.jpg`), Buffer.from(m[1], 'base64'));
+    const roles = await leerJson(ARCHIVO_ROLES, { meses: {}, sabados: {} });
+    roles.meses[mes] = { ...(roles.meses[mes] || {}), foto: Date.now() }; // número = versión, para refrescar la imagen
+    await guardarJson(ARCHIVO_ROLES, roles);
+    return responderJson(res, 200, roles);
+  }
+
+  if (req.method === 'PUT' && partes[1] === 'roles' && partes[2] === 'mes' && partes[3]) {
+    const mes = partes[3];
+    if (!/^\d{4}-\d{2}$/.test(mes)) throw new ErrorCliente(400, 'El mes debe ser AAAA-MM');
+    const { anciano } = await leerCuerpo(req);
+    const roles = await leerJson(ARCHIVO_ROLES, { meses: {}, sabados: {} });
+    // Se conserva la foto si ya había una
+    roles.meses[mes] = { ...(roles.meses[mes] || {}), anciano: limpiar(anciano) };
+    if (!roles.meses[mes].anciano && !roles.meses[mes].foto) delete roles.meses[mes];
+    await guardarJson(ARCHIVO_ROLES, roles);
+    return responderJson(res, 200, roles);
+  }
+
+  // Estado de la hoja de Google y sincronización a pedido (la app la pide al abrirse y con ⟳)
+  if (ruta === 'GET /hoja') {
+    return responderJson(res, 200, { url: HOJA_URL, ...(await leerJson(ARCHIVO_SINCRONIZACION, {})) });
+  }
+  if (ruta === 'POST /hoja/sincronizar') {
+    const { siPasaron } = await leerCuerpo(req);
+    const previo = await leerJson(ARCHIVO_SINCRONIZACION, {});
+    // "siPasaron": no volver a bajar si la última vez fue hace menos de esos segundos
+    if (siPasaron && previo.ok && Date.now() - new Date(previo.fecha).getTime() < siPasaron * 1000) {
+      return responderJson(res, 200, { url: HOJA_URL, ...previo, cambio: false });
+    }
+    return responderJson(res, 200, { url: HOJA_URL, ...(await sincronizarHoja()), cambio: true });
+  }
+
+  // Líderes por gestión (nombre, cargo, celular)
+  if (ruta === 'GET /lideres') {
+    const datos = await leerJson(path.join(CARPETA_DATOS, 'lideres.json'), { lideres: [] });
+    return responderJson(res, 200, datos.lideres || []);
+  }
+
+  // Cumpleaños de los miembros (datos/cumpleanos.json, sacado del reporte PDF de la iglesia)
+  if (ruta === 'GET /cumpleanos') {
+    const datos = await leerJson(path.join(CARPETA_DATOS, 'cumpleanos.json'), { personas: [] });
+    return responderJson(res, 200, datos.personas || []);
+  }
 
   if (ruta === 'GET /fondo/pistas') {
     const archivos = await fsp.readdir(CARPETA_FONDO).catch(() => []);
@@ -845,6 +1114,10 @@ async function iniciar() {
     })
     .listen(PUERTO, () => {
       console.log(`Himnario listo: ${catalogo.length} himnos`);
+      // Datos de la iglesia desde Google Sheets (si no hay internet, se usa la última copia)
+      sincronizarHoja().then((r) => console.log(r.ok
+        ? `Hoja de Google sincronizada: ${JSON.stringify(r.totales)}`
+        : `No se pudo leer la hoja de Google (se usa la última copia): ${r.error}`));
       console.log(`Abre http://localhost:${PUERTO} en esta PC`);
       console.log(`o http://<IP-de-esta-PC>:${PUERTO} en el celular (misma red WiFi)`);
     });

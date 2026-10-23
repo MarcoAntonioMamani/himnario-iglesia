@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta de LasAmericas: azul real; barras del sistema en azul con íconos blancos -->
+    <color name="primario">#1E5BD8</color>
+    <color name="barra">#1A3FB0</color>
+    <color name="fondo">#F4F7FF</color>
+
+    <style name="Tema" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/primario</item>
+        <item name="android:colorAccent">@color/primario</item>
+        <item name="android:statusBarColor">@color/barra</item>
+        <item name="android:navigationBarColor">@color/barra</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/fondo</item>
+    </style>
+</resources>

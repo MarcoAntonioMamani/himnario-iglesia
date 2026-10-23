@@ -70,8 +70,50 @@ const vistaActiva = () => document.querySelector('.vista.activa')?.id;
 
 function mostrarVista(id) {
   document.querySelectorAll('.vista').forEach((v) => v.classList.toggle('activa', v.id === id));
+  // Barra inferior: resalta la sección actual; dentro de un himno se esconde (pantalla de detalle)
+  document.querySelectorAll('#nav-inferior button').forEach((b) => b.classList.toggle('activo', b.dataset.vista === id));
+  document.body.classList.toggle('sin-nav', id === 'vista-himno');
   actualizarFlotantes();
 }
+
+// Íconos dibujados en la barra superior (en lugar de los caracteres "←" y "🌙")
+const SVG_ATRAS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
+const SVG_LUNA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+document.querySelectorAll('[id^="btn-volver"]').forEach((b) => {
+  b.innerHTML = SVG_ATRAS;
+  b.setAttribute('aria-label', 'Volver');
+});
+$('#btn-fondo').innerHTML = SVG_LUNA;
+$('#btn-fondo').setAttribute('aria-label', 'Música de fondo');
+
+// Navegación como en las apps de Android: las secciones de la barra inferior no se apilan.
+// Desde el inicio (Himnos) se abre una sección con una entrada en el historial; cambiar de una
+// sección a otra la reemplaza. Así, "atrás" desde cualquier sección vuelve directo a Himnos.
+const SECCIONES = ['roles', 'cumple', 'musica', 'videos'];
+
+function irASeccion(nombre) {
+  if (location.hash === `#${nombre}`) return;
+  if (SECCIONES.includes(location.hash.slice(1))) history.replaceState({ app: true }, '', `#${nombre}`);
+  else history.pushState({ app: true }, '', `#${nombre}`);
+}
+
+// Tocar una sección de la barra inferior
+document.querySelectorAll('#nav-inferior button').forEach((b) => {
+  b.onclick = () => {
+    if (vistaActiva() === b.dataset.vista) {
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // tocar la actual vuelve arriba, como en Android
+      return;
+    }
+    if (b.dataset.vista === 'vista-lista') {
+      // Himnos es el inicio: se reemplaza la pantalla actual, no se apila
+      history.replaceState({ app: true }, '', location.pathname + location.search);
+      seguirRuta();
+    } else if (b.dataset.vista === 'vista-roles') abrirRoles();
+    else if (b.dataset.vista === 'vista-cumple') abrirCumple();
+    else if (b.dataset.vista === 'vista-musica') abrirMusica();
+    else if (b.dataset.vista === 'vista-videos') abrirVideos();
+  };
+});
 
 function formatoTiempo(segundos) {
   if (!Number.isFinite(segundos) || segundos < 0) return '0:00';
@@ -80,6 +122,8 @@ function formatoTiempo(segundos) {
 }
 
 function reproducir(nueva) {
+  // Si se elige otra cosa a mano, la lista de favoritos deja de avanzar sola
+  if (!nueva.enCola) colaFavoritos = null;
   if (pista?.clave !== nueva.clave) {
     pista = nueva;
     motor.src = nueva.src;
@@ -98,9 +142,67 @@ function alternarReproduccion() {
   else motor.pause();
 }
 
-// Botones de pistas: anterior/siguiente solo tienen sentido en la música
+// Botones ⏮ ⏭: en la música y en la lista de favoritos (un himno suelto no tiene pasos)
 function pasoDePista(paso) {
   if (pista?.fuente === 'musica') otraCancion(paso);
+  else if (pista?.enCola) pasoFavorito(paso);
+}
+
+// En favoritos solo mientras la lista sigue activa (al terminar desaparecen ⏮ ⏭)
+const tienePasos = () => pista?.fuente === 'musica' || Boolean(pista?.enCola && colaFavoritos);
+
+// ----- lista de favoritos: uno tras otro, en orden o al azar -----
+let colaFavoritos = null; // { numeros: [..], indice, aleatorio }
+
+function mezclar(lista) {
+  const a = [...lista];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function reproducirFavoritos(aleatorio) {
+  const numeros = himnosFiltrados().filter((h) => h.favorito).map((h) => h.numero);
+  if (!numeros.length) return avisar('Primero marca himnos como favoritos (♡ dentro de un himno)');
+  colaFavoritos = { numeros: aleatorio ? mezclar(numeros) : numeros, indice: 0, aleatorio };
+  tocarFavorito();
+  avisar(aleatorio ? `Favoritos al azar · ${numeros.length} himnos` : `Favoritos en orden · ${numeros.length} himnos`);
+}
+
+function tocarFavorito() {
+  const cola = colaFavoritos;
+  const h = estado.himnos.find((x) => x.numero === cola.numeros[cola.indice]);
+  if (!h) return;
+  const p = pistaDeHimno(h, estado.tipo);
+  p.enCola = true;
+  p.sub = `Favoritos${cola.aleatorio ? ' al azar' : ''} · ${cola.indice + 1} de ${cola.numeros.length}`;
+  p.clave += `:cola${cola.indice}`; // para que repetir el mismo himno en la lista lo vuelva a cargar
+  reproducir(p);
+  colaFavoritos = cola; // reproducir() no la borra porque la pista es de la cola
+  pintarLista();
+}
+
+// alTerminar: true cuando lo pide el fin del himno (al final de la lista se detiene)
+function pasoFavorito(paso, alTerminar = false) {
+  const cola = colaFavoritos;
+  if (!cola) return;
+  let i = cola.indice + paso;
+  if (i >= cola.numeros.length) {
+    if (alTerminar) {
+      avisar('Terminó la lista de favoritos');
+      colaFavoritos = null;
+      actualizarControles();
+      return;
+    }
+    // ⏭ en el último: vuelve a empezar (al azar se mezcla de nuevo)
+    if (cola.aleatorio) cola.numeros = mezclar(cola.numeros);
+    i = 0;
+  }
+  if (i < 0) i = 0;
+  cola.indice = i;
+  tocarFavorito();
 }
 
 // Construye los controles (▶, tiempo, barra, duración) en cada contenedor .controles-audio
@@ -196,6 +298,7 @@ motor.addEventListener('pause', () => {
 });
 motor.addEventListener('ended', () => {
   if (pista?.fuente === 'musica') otraCancion(1);
+  else if (pista?.enCola) pasoFavorito(1, true);
   revisarSilencio();
 });
 
@@ -269,9 +372,8 @@ function actualizarMini() {
   $('#mini-icono').textContent = pista.icono;
   $('#mini-play').textContent = motor.paused ? '▶' : '⏸';
   $('#mini-play').title = motor.paused ? 'Reproducir' : 'Pausar';
-  const esMusica = pista.fuente === 'musica';
-  $('#mini-anterior').hidden = !esMusica;
-  $('#mini-siguiente').hidden = !esMusica;
+  $('#mini-anterior').hidden = !tienePasos();
+  $('#mini-siguiente').hidden = !tienePasos();
   const barra = $('#mini-barra');
   pintarBarra(barra, motor.currentTime, motor.duration);
   if (!barra.arrastrando) $('#mini-tiempo').textContent = `${formatoTiempo(motor.currentTime)} / ${formatoTiempo(motor.duration)}`;
@@ -341,7 +443,7 @@ function pintarTemas() {
   contenedor.replaceChildren();
   const opciones = [{ id: '', nombre: 'Todos los temas' }, ...estado.temas];
   for (const tema of opciones) {
-    const chip = crear('button', 'chip' + (tema.id === estado.tema ? ' activo' : ''), tema.nombre);
+    const chip = crear('button', 'chip' + (tema.id ? ` tema-${tema.id}` : '') + (tema.id === estado.tema ? ' activo' : ''), tema.nombre);
     chip.onclick = () => {
       estado.tema = tema.id;
       pintarTemas();
@@ -370,14 +472,26 @@ function pintarLista() {
   // Se pintan como mucho 200 para que el celular no se trabe; el buscador acota el resto
   const fragmento = document.createDocumentFragment();
   for (const h of himnos.slice(0, 200)) {
-    const li = crear('li');
+    const li = crear('li', `fila-himno tema-${h.tema}`);
+    if (pista?.fuente === 'himno' && pista.numero === h.numero) li.classList.add('actual');
     li.append(crear('span', 'numero', h.numero));
-    const titulo = crear('span', 'titulo', h.titulo);
-    titulo.append(crear('small', '', nombreTema[h.tema] || ''));
+    const titulo = crear('span', 'titulo');
+    titulo.append(crear('span', 'titulo-texto', h.titulo));
+    if (nombreTema[h.tema]) titulo.append(crear('span', 'tema-chip', nombreTema[h.tema]));
     li.append(titulo);
+    // Íconos dibujados: favorito (corazón) y guardado sin internet (nube con check)
     const marcas = crear('span', 'marcas');
-    if (h.favorito) marcas.append(crear('span', 'fav', '♥ '));
-    if (tieneAlgo(h.descargado)) marcas.append(crear('span', 'ok', '⬇'));
+    if (h.favorito) {
+      const fav = crear('span', 'marca-fav');
+      fav.innerHTML = '<svg viewBox="0 0 24 24" aria-label="Favorito"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7C19.5 15.9 12 20.5 12 20.5z"/></svg>';
+      marcas.append(fav);
+    }
+    if (tieneAlgo(h.descargado)) {
+      const ok = crear('span', 'marca-ok');
+      ok.innerHTML = '<svg viewBox="0 0 24 24" aria-label="Guardado sin internet"><path d="M7 18.5a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.5 1.5 3.8 3.8 0 0 1-.4 7.5z"/><path class="check" d="M9.3 13.6l1.9 1.9 3.6-3.7"/></svg>';
+      marcas.append(ok);
+    }
+    marcas.append(crear('span', 'flecha', '›'));
     li.append(marcas);
     li.onclick = () => abrirHimno(h.numero);
     fragmento.append(li);
@@ -422,6 +536,9 @@ $('#btn-actualizar').onclick = async () => {
     avisar(error.message);
   }
 };
+
+$('#btn-favoritos-orden').onclick = () => reproducirFavoritos(false);
+$('#btn-favoritos-azar').onclick = () => reproducirFavoritos(true);
 
 $('#btn-bajar-favoritos').onclick = async (e) => {
   const boton = e.currentTarget;
@@ -496,6 +613,10 @@ function volver() {
 // #123 = himno, #videos = videos, #musica = música, vacío = lista
 function seguirRuta() {
   const ruta = location.hash.slice(1);
+  if (ruta === 'cumple') return abrirCumple(false);
+  if (ruta === 'roles') return abrirRoles(false);
+  $('#vista-cumple').classList.remove('activa');
+  $('#vista-roles').classList.remove('activa');
   if (ruta !== 'musica') cerrarMusica();
   if (ruta === 'musica') {
     cerrarVideos();
@@ -722,7 +843,7 @@ async function abrirVideos(agregarAlHistorial = true) {
   videoCerrado = false;
   mostrarVista('vista-videos');
   window.scrollTo(0, 0);
-  if (agregarAlHistorial && location.hash !== '#videos') history.pushState({ app: true }, '', '#videos');
+  if (agregarAlHistorial) irASeccion('videos');
   try {
     videos = await api('/videos');
   } catch (error) {
@@ -1090,7 +1211,7 @@ async function abrirMusica(agregarAlHistorial = true) {
   mostrarVista('vista-musica');
   actualizarControles();
   window.scrollTo(0, 0);
-  if (agregarAlHistorial && location.hash !== '#musica') history.pushState({ app: true }, '', '#musica');
+  if (agregarAlHistorial) irASeccion('musica');
   if (!musica.cargada) await cargarMusica();
 }
 
@@ -1130,14 +1251,24 @@ function pintarMusica() {
   const fragmento = document.createDocumentFragment();
   const actual = cancionActual();
   for (const c of musica.cola) {
-    const li = crear('li');
+    const li = crear('li', 'fila-cancion');
+    const sonando = actual?.id === c.id && !motor.paused;
     if (actual?.id === c.id) li.classList.add('actual');
-    li.append(crear('span', 'numero', actual?.id === c.id && !motor.paused ? '♪' : '♫'));
-    const titulo = crear('span', 'titulo', c.titulo);
-    titulo.append(crear('small', '', [c.subcarpeta, musica.carpetas.length > 1 ? c.carpeta : ''].filter(Boolean).join(' · ')));
+    // Cuadro con nota; si está sonando, barritas de ecualizador animadas
+    const cuadro = crear('span', 'cancion-cuadro');
+    cuadro.innerHTML = sonando ? '<span class="ecualizador"><i></i><i></i><i></i><i></i></span>' : SVG_NOTA;
+    li.append(cuadro);
+    const titulo = crear('span', 'titulo');
+    titulo.append(crear('span', 'titulo-texto', c.titulo));
+    const origen = [c.subcarpeta, musica.carpetas.length > 1 ? c.carpeta : ''].filter(Boolean).join(' · ');
+    if (origen) titulo.append(crear('span', 'tema-chip', origen));
     li.append(titulo);
     const marcas = crear('span', 'marcas');
-    if (c.guardada) marcas.append(crear('span', 'ok', '⬇'));
+    if (c.guardada) {
+      const ok = crear('span', 'marca-ok');
+      ok.innerHTML = SVG_NUBE_OK;
+      marcas.append(ok);
+    }
     li.append(marcas);
     // 🌙 = usar esta canción como música de fondo
     const luna = crear('button', 'icono luna' + (Fondo.esDeFondo(c.id) ? ' si' : ''), '🌙');
@@ -1498,6 +1629,716 @@ motor.addEventListener('timeupdate', () => {
   document.querySelectorAll('#letra img').forEach((img, i) => img.classList.toggle('sonando', i + 1 === n));
 });
 
+// ---------- cumpleaños ----------
+// Lista de datos/cumpleanos.json (día y mes de cada miembro). Avisa el día antes y el mismo día.
+
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const COLORES_MES = ['#2563eb', '#db2777', '#16a34a', '#7c3aed', '#ea580c', '#0891b2', '#dc2626', '#d97706', '#0d9488', '#c026d3', '#4f46e5', '#059669'];
+let cumpleaneros = [];
+
+const soloFecha = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const claveDia = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+// Fecha del cumpleaños en el año dado (el 29 de febrero se festeja el 28 en años no bisiestos)
+function fechaEnAnio(p, anio) {
+  const ultimoDia = new Date(anio, p.mes, 0).getDate();
+  return new Date(anio, p.mes - 1, Math.min(p.dia, ultimoDia));
+}
+
+// Días que faltan para el próximo cumpleaños (0 = hoy)
+function diasParaCumple(p, hoy = soloFecha(new Date())) {
+  let f = fechaEnAnio(p, hoy.getFullYear());
+  if (f < hoy) f = fechaEnAnio(p, hoy.getFullYear() + 1);
+  return Math.round((f - hoy) / 86400000);
+}
+
+// Texto para mostrar: "¡Hoy es su cumpleaños!", "Mañana", "En 5 días", "Ayer" o "Hace 3 días".
+// Si ya pasó este año se dice cuánto hace (no "en 362 días"), salvo que el del año que viene
+// esté a una semana o menos (por ejemplo el 2 de enero visto el 30 de diciembre).
+function cuandoEsCumple(p, hoy = soloFecha(new Date())) {
+  const esteAnio = fechaEnAnio(p, hoy.getFullYear());
+  const diff = Math.round((esteAnio - hoy) / 86400000);
+  const proximo = diasParaCumple(p, hoy);
+  if (diff === 0) return { texto: '¡Hoy es su cumpleaños!', fecha: esteAnio };
+  // El último cumpleaños que ya pasó: el de este año, o el del año pasado (p. ej. 28/12 visto el 2/1)
+  const anterior = diff < 0 ? esteAnio : fechaEnAnio(p, hoy.getFullYear() - 1);
+  const hace = Math.round((hoy - anterior) / 86400000);
+  if (proximo > 7 && (diff < 0 || hace <= 7)) {
+    return { texto: hace === 1 ? 'Ayer' : `Hace ${hace} días`, fecha: anterior };
+  }
+  const fecha = fechaEnAnio(p, hoy.getFullYear() + (diff < 0 ? 1 : 0));
+  return { texto: proximo === 1 ? 'Mañana' : `En ${proximo} días`, fecha };
+}
+
+// Semana actual: de lunes a domingo
+function semanaActual(hoy = soloFecha(new Date())) {
+  const lunes = new Date(hoy);
+  lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
+  const domingo = new Date(lunes);
+  domingo.setDate(lunes.getDate() + 6);
+  return { lunes, domingo };
+}
+
+function cumpleEnSemana(p, hoy = soloFecha(new Date())) {
+  const { lunes, domingo } = semanaActual(hoy);
+  // Se revisan el año del lunes y el del domingo (por si la semana cruza año nuevo)
+  return [lunes.getFullYear(), domingo.getFullYear()].some((a) => {
+    const f = fechaEnAnio(p, a);
+    return f >= lunes && f <= domingo;
+  });
+}
+
+const deHoy = () => cumpleaneros.filter((p) => diasParaCumple(p) === 0);
+const deManana = () => cumpleaneros.filter((p) => diasParaCumple(p) === 1);
+const deLaSemana = () => cumpleaneros.filter((p) => cumpleEnSemana(p)).sort((a, b) => fechaEnAnio(a, 2024) - fechaEnAnio(b, 2024));
+
+const nombresLista = (ps) => ps.map((p) => p.nombre).join(', ');
+
+async function cargarCumpleanos() {
+  try {
+    cumpleaneros = await api('/cumpleanos');
+  } catch {
+    cumpleaneros = [];
+  }
+  revisarCumpleanos();
+}
+
+// Insignia del 🎂, aviso en la pantalla principal y notificación del navegador (en la PC)
+function revisarCumpleanos() {
+  const hoy = deHoy();
+  const manana = deManana();
+  const total = hoy.length + manana.length;
+  for (const insignia of [$('#cumple-insignia'), $('#nav-insignia')]) {
+    insignia.hidden = total === 0;
+    insignia.textContent = total;
+  }
+
+  let oculto = null;
+  try {
+    oculto = localStorage.getItem('cumple-aviso-oculto');
+  } catch {
+    /* sin almacenamiento: se muestra siempre */
+  }
+  const aviso = $('#aviso-cumple');
+  aviso.hidden = total === 0 || oculto === claveDia(new Date());
+  if (total) {
+    const partes = [];
+    if (hoy.length) partes.push(`<strong>¡Hoy ${hoy.length > 1 ? 'cumplen' : 'cumple'} años!</strong> ${escaparHtml(nombresLista(hoy))}. Felicítalo${hoy.length > 1 ? 's' : ''} 🎂`);
+    if (manana.length) partes.push(`<strong>Mañana:</strong> ${escaparHtml(nombresLista(manana))}`);
+    $('#aviso-cumple-texto').innerHTML = partes.join('<br>');
+  }
+  notificarCumpleanosNavegador(hoy, manana);
+  if ($('#vista-cumple').classList.contains('activa')) pintarCumple();
+}
+
+function escaparHtml(t) {
+  return t.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+// En la PC: notificación del sistema una vez por día por persona (si se dio permiso).
+// En la app de Android las notificaciones las hace la propia app, aunque esté cerrada.
+function notificarCumpleanosNavegador(hoy, manana) {
+  if (window.Android || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const avisar = (p, texto) => {
+    const clave = `cumple-notif-${claveDia(new Date())}-${p.nombre}`;
+    try {
+      if (localStorage.getItem(clave)) return;
+      localStorage.setItem(clave, '1');
+    } catch {
+      /* sin almacenamiento: puede repetirse */
+    }
+    new Notification('🎂 LasAmericas', { body: texto, icon: 'icono.svg', tag: clave });
+  };
+  hoy.forEach((p) => avisar(p, `Hoy cumple años ${p.nombre}. ¡Felicítalo!`));
+  manana.forEach((p) => avisar(p, `Mañana cumple años ${p.nombre}`));
+}
+
+$('#aviso-cumple').onclick = (e) => {
+  if (e.target.closest('#aviso-cumple-cerrar')) return;
+  abrirCumple();
+};
+$('#aviso-cumple-cerrar').onclick = (e) => {
+  e.stopPropagation();
+  try {
+    localStorage.setItem('cumple-aviso-oculto', claveDia(new Date()));
+  } catch {
+    /* no importa */
+  }
+  $('#aviso-cumple').hidden = true;
+};
+
+function abrirCumple(agregarAlHistorial = true) {
+  mostrarVista('vista-cumple');
+  window.scrollTo(0, 0);
+  if (agregarAlHistorial) irASeccion('cumple');
+  pintarCumple();
+}
+
+$('#btn-cumple').onclick = () => abrirCumple();
+$('#btn-volver-cumple').onclick = volver;
+$('#buscar-cumple').addEventListener('input', pintarCumple);
+
+function filaCumple(p, conEtiqueta = true) {
+  const li = crear('li');
+  const dias = diasParaCumple(p);
+  if (dias === 0) li.classList.add('es-hoy');
+  if (dias === 1) li.classList.add('es-manana');
+  // El color del mes pinta la fecha y la franja de la izquierda
+  li.style.setProperty('--color-mes', COLORES_MES[p.mes - 1]);
+  const fecha = crear('span', 'cumple-fecha', String(p.dia));
+  fecha.append(crear('small', '', MESES[p.mes - 1].slice(0, 3)));
+  li.append(fecha);
+  const nombre = crear('span', 'cumple-nombre', p.nombre);
+  const { texto, fecha: f } = cuandoEsCumple(p);
+  if (texto.startsWith('Hace') || texto === 'Ayer') li.classList.add('ya-paso');
+  const diaSemana = f.toLocaleDateString('es', { weekday: 'long' });
+  nombre.append(crear('small', '', dias === 0 ? texto : `${texto} · ${diaSemana} ${p.dia} de ${MESES[p.mes - 1]}`));
+  li.append(nombre);
+  if (conEtiqueta && dias <= 1) li.append(crear('span', 'cumple-etiqueta' + (dias === 1 ? ' manana' : ''), dias === 0 ? 'HOY' : 'MAÑANA'));
+  return li;
+}
+
+function grupoCumple(titulo, detalle, personas) {
+  const div = crear('div', 'cumple-grupo');
+  const h2 = crear('h2', '', titulo);
+  if (detalle) h2.append(crear('small', '', detalle));
+  div.append(h2);
+  const ul = crear('ul', 'cumple-lista');
+  personas.forEach((p) => ul.append(filaCumple(p)));
+  div.append(ul);
+  return div;
+}
+
+function pintarCumple() {
+  const hoy = deHoy();
+  const manana = deManana();
+  const semana = deLaSemana();
+  const { lunes, domingo } = semanaActual();
+  const rango = `${lunes.getDate()} ${MESES[lunes.getMonth()].slice(0, 3)} – ${domingo.getDate()} ${MESES[domingo.getMonth()].slice(0, 3)}`;
+
+  // Tarjetas de resumen
+  const resumen = $('#cumple-resumen');
+  resumen.replaceChildren();
+  [['hoy', hoy.length, 'Hoy'], ['manana', manana.length, 'Mañana'], ['semana', semana.length, 'Esta semana']].forEach(([clase, n, texto]) => {
+    const t = crear('div', `cumple-tarjeta ${clase}`);
+    t.append(crear('b', '', n), crear('span', '', texto));
+    resumen.append(t);
+  });
+
+  const texto = sinTildes($('#buscar-cumple').value.trim());
+  const listas = $('#cumple-listas');
+  listas.replaceChildren();
+  if (!cumpleaneros.length) {
+    listas.append(crear('p', 'vacio', 'No hay lista de cumpleaños cargada.'));
+    return;
+  }
+  if (texto) {
+    const encontrados = cumpleaneros.filter((p) => sinTildes(p.nombre).includes(texto)).sort((a, b) => diasParaCumple(a) - diasParaCumple(b));
+    listas.append(grupoCumple('Resultados', `${encontrados.length}`, encontrados));
+    return;
+  }
+  if (hoy.length) listas.append(grupoCumple('🎉 Hoy', '¡felicítalos!', hoy));
+  if (manana.length) listas.append(grupoCumple('⏰ Mañana', '', manana));
+  listas.append(grupoCumple('📅 Esta semana', rango, semana.length ? semana : []));
+  if (!semana.length) listas.lastChild.append(crear('p', 'nota-videos', 'Nadie cumple años esta semana.'));
+  const proximos = cumpleaneros.filter((p) => { const d = diasParaCumple(p); return d > 1 && d <= 30 && !cumpleEnSemana(p); })
+    .sort((a, b) => diasParaCumple(a) - diasParaCumple(b));
+  if (proximos.length) listas.append(grupoCumple('🔜 Próximos 30 días', '', proximos));
+  // Todos, por mes, empezando por el mes actual
+  const mesActual = new Date().getMonth();
+  for (let k = 0; k < 12; k++) {
+    const m = (mesActual + k) % 12;
+    const delMes = cumpleaneros.filter((p) => p.mes === m + 1).sort((a, b) => a.dia - b.dia);
+    if (delMes.length) listas.append(grupoCumple(MESES[m][0].toUpperCase() + MESES[m].slice(1), `${delMes.length}`, delMes));
+  }
+
+  // Permiso de notificaciones (solo en la PC; en Android lo pide la app)
+  const nota = $('#cumple-notificaciones');
+  nota.replaceChildren();
+  if (window.Android) {
+    nota.textContent = 'El celular te avisará con una notificación el día antes y el mismo día, aunque la app esté cerrada.';
+  } else if ('Notification' in window && Notification.permission === 'default') {
+    const b = crear('button', 'boton tonal-chico', '🔔 Activar avisos en esta PC');
+    b.onclick = () => Notification.requestPermission().then(revisarCumpleanos);
+    nota.append(b);
+  } else if ('Notification' in window && Notification.permission === 'granted') {
+    nota.textContent = 'Los avisos de esta PC están activados (mientras la app esté abierta).';
+  }
+}
+
+// Si la app queda abierta, se revisa cada 30 minutos (por si cambia el día)
+setInterval(revisarCumpleanos, 30 * 60 * 1000);
+
+// ---------- roles del sábado ----------
+// Predicador, acompañantes y flores de cada sábado en la mañana, y anciano de turno por mes.
+
+let roles = { meses: {}, sabados: {} };
+let mesRoles = null; // primer día del mes que se está viendo
+
+const clave2 = (n) => String(n).padStart(2, '0');
+const claveFecha = (d) => `${d.getFullYear()}-${clave2(d.getMonth() + 1)}-${clave2(d.getDate())}`;
+const claveMes = (d) => `${d.getFullYear()}-${clave2(d.getMonth() + 1)}`;
+
+// Hoy si es sábado; si no, el próximo sábado
+function proximoSabado(hoy = soloFecha(new Date())) {
+  const d = new Date(hoy);
+  d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7));
+  return d;
+}
+
+function sabadosDelMes(primero) {
+  const lista = [];
+  const d = new Date(primero.getFullYear(), primero.getMonth(), 1);
+  while (d.getMonth() === primero.getMonth()) {
+    if (d.getDay() === 6) lista.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return lista;
+}
+
+async function cargarRoles() {
+  try {
+    roles = await api('/roles');
+  } catch {
+    roles = { meses: {}, sabados: {} };
+  }
+}
+
+function abrirRoles(agregarAlHistorial = true) {
+  mostrarVista('vista-roles');
+  window.scrollTo(0, 0);
+  if (agregarAlHistorial) irASeccion('roles');
+  if (!mesRoles) {
+    const p = proximoSabado();
+    mesRoles = new Date(p.getFullYear(), p.getMonth(), 1);
+  }
+  cargarRoles().then(pintarRoles);
+}
+
+$('#btn-roles').onclick = () => abrirRoles();
+$('#btn-volver-roles').onclick = volver;
+$('#roles-mes-anterior').onclick = () => {
+  mesRoles = new Date(mesRoles.getFullYear(), mesRoles.getMonth() - 1, 1);
+  pintarRoles();
+};
+$('#roles-mes-siguiente').onclick = () => {
+  mesRoles = new Date(mesRoles.getFullYear(), mesRoles.getMonth() + 1, 1);
+  pintarRoles();
+};
+
+// "Predicador: Freddy Almendras" (con la etiqueta en texto para que no se confunda)
+function lineaRol(etiqueta, texto) {
+  const div = crear('div', 'linea');
+  div.append(crear('span', 'etiqueta-rol', `${etiqueta}:`));
+  div.append(texto ? crear('span', 'valor-rol', texto) : crear('span', 'valor-rol falta', 'Sin asignar'));
+  return div;
+}
+
+function miercolesDelMes(primero) {
+  const lista = [];
+  const d = new Date(primero.getFullYear(), primero.getMonth(), 1);
+  while (d.getMonth() === primero.getMonth()) {
+    if (d.getDay() === 3) lista.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return lista;
+}
+
+// Próximo miércoles (hoy si es miércoles)
+function proximoMiercoles(hoy = soloFecha(new Date())) {
+  const d = new Date(hoy);
+  d.setDate(d.getDate() + ((3 - d.getDay() + 7) % 7));
+  return d;
+}
+
+// Achica la foto en el navegador (cuadrada, 320 px) antes de subirla: pesa ~25 KB
+function achicarFoto(archivo) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const lado = Math.min(img.width, img.height);
+      const lienzo = document.createElement('canvas');
+      lienzo.width = lienzo.height = 320;
+      lienzo.getContext('2d').drawImage(img, (img.width - lado) / 2, (img.height - lado) / 2, lado, lado, 0, 0, 320, 320);
+      URL.revokeObjectURL(img.src);
+      resolve(lienzo.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => reject(new Error('No se pudo leer la imagen'));
+    img.src = URL.createObjectURL(archivo);
+  });
+}
+
+$('#roles-foto-archivo').onchange = async (e) => {
+  const archivo = e.target.files[0];
+  e.target.value = '';
+  if (!archivo) return;
+  try {
+    const imagen = await achicarFoto(archivo);
+    roles = await api(`/roles/mes/${claveMes(mesRoles)}/foto`, { method: 'PUT', body: { imagen } });
+    pintarRoles();
+    avisar('Foto del anciano guardada');
+  } catch (error) {
+    avisar(error.message);
+  }
+};
+
+function pintarRoles() {
+  const hoy = soloFecha(new Date());
+  const proximo = proximoSabado(hoy);
+  const claveProx = claveFecha(proximo);
+
+  // Tarjeta destacada: el próximo miércoles (si viene antes) y el próximo sábado
+  const caja = $('#roles-proximo');
+  caja.replaceChildren();
+  const miercoles = proximoMiercoles(hoy);
+  const claveMie = claveFecha(miercoles);
+  if (miercoles < proximo) {
+    caja.append(crear('h3', '', miercoles.getTime() === hoy.getTime() ? 'Hoy miércoles de culto' : `Miércoles ${miercoles.getDate()} de ${MESES[miercoles.getMonth()]}`));
+    caja.append(lineaRol('Culto', roles.miercoles?.[claveMie]?.predicador));
+  }
+  const rp = roles.sabados[claveProx];
+  caja.append(crear('h3', '', proximo.getTime() === hoy.getTime() ? 'Hoy sábado' : `Sábado ${proximo.getDate()} de ${MESES[proximo.getMonth()]}`));
+  caja.append(lineaRol('Predicador', rp?.predicador), lineaRol('Acompañantes', rp?.acompanantes), lineaRol('JA (tarde)', rp?.ja), lineaRol('Flores', rp?.flores));
+
+  // Mes que se está viendo
+  $('#roles-mes-titulo').textContent = `${MESES[mesRoles.getMonth()]} ${mesRoles.getFullYear()}`;
+  const datosMes = roles.meses[claveMes(mesRoles)] || {};
+  const anciano = datosMes.anciano;
+  const cajaAnciano = $('#roles-anciano');
+  cajaAnciano.replaceChildren();
+  // Foto del anciano de turno (o un círculo con 👔 si todavía no hay)
+  const foto = crear('button', 'anciano-foto');
+  foto.title = 'Cambiar foto';
+  if (datosMes.foto) {
+    const img = crear('img');
+    img.alt = anciano || 'Anciano de turno';
+    img.src = `/medios/foto/anciano-${claveMes(mesRoles)}.jpg?v=${datosMes.foto}`;
+    foto.append(img);
+  } else {
+    foto.append(crear('span', '', '👔'));
+  }
+  // Con la hoja conectada, la foto se cambia pegando su enlace de Drive en la hoja «Ancianos»
+  const cambiarFoto = () => (hoja.url ? abrirHoja() : $('#roles-foto-archivo').click());
+  foto.onclick = cambiarFoto;
+  const textoAnciano = crear('div', 'anciano-texto');
+  textoAnciano.append(crear('small', '', 'Anciano de turno'), crear('strong', '', anciano || 'Sin asignar'));
+  const subirFoto = crear('button', 'boton texto', datosMes.foto ? '📷 Cambiar foto' : '📷 Agregar foto');
+  subirFoto.onclick = cambiarFoto;
+  textoAnciano.append(subirFoto);
+  cajaAnciano.append(foto, textoAnciano);
+  const editarAnciano = crear('button', 'icono', '✎');
+  editarAnciano.title = 'Cambiar anciano de turno';
+  editarAnciano.onclick = async () => {
+    if (hoja.url) return abrirHoja();
+    const nombre = prompt(`Anciano de turno de ${MESES[mesRoles.getMonth()]}:`, anciano || '');
+    if (nombre === null) return;
+    try {
+      roles = await api(`/roles/mes/${claveMes(mesRoles)}`, { method: 'PUT', body: { anciano: nombre } });
+      pintarRoles();
+    } catch (error) {
+      avisar(error.message);
+    }
+  };
+  cajaAnciano.append(editarAnciano);
+
+  // Miércoles y sábados del mes, tengan datos o no (para poder completarlos).
+  // En el mes actual: primero esta semana, luego los que siguen y al final los que ya pasaron
+  // (del más reciente al más antiguo). Los otros meses van en orden de fecha.
+  const lista = $('#roles-sabados');
+  lista.replaceChildren();
+  const todos = [...miercolesDelMes(mesRoles), ...sabadosDelMes(mesRoles)].sort((a, b) => a - b);
+  const esMesActual = mesRoles.getFullYear() === hoy.getFullYear() && mesRoles.getMonth() === hoy.getMonth();
+  const { domingo } = semanaActual(hoy);
+  const grupos = esMesActual
+    ? [
+      ['Esta semana', todos.filter((d) => d >= hoy && d <= domingo)],
+      ['Próximos', todos.filter((d) => d > domingo)],
+      ['Ya pasaron', todos.filter((d) => d < hoy).reverse()],
+    ]
+    : [['', todos]];
+  for (const [tituloGrupo, dias] of grupos) {
+    if (!dias.length) continue;
+    if (tituloGrupo) lista.append(crear('h3', 'roles-grupo', tituloGrupo));
+    for (const dia of dias) lista.append(tarjetaRol(dia));
+  }
+
+  function tarjetaRol(dia) {
+    const clave = claveFecha(dia);
+    const esSabado = dia.getDay() === 6;
+    const tarjeta = crear('div', `rol-tarjeta ${esSabado ? 'sabado' : 'miercoles'}`);
+    if (clave === claveProx || (!esSabado && clave === claveMie && miercoles < proximo)) tarjeta.classList.add('proximo');
+    else if (dia < hoy) tarjeta.classList.add('pasado');
+    const fecha = crear('div', 'rol-fecha');
+    fecha.append(crear('small', 'rol-dia', esSabado ? 'SÁB' : 'MIÉ'), crear('b', '', String(dia.getDate())), crear('small', '', MESES[dia.getMonth()].slice(0, 3)));
+    const datos = crear('div', 'rol-datos');
+    if (tarjeta.classList.contains('proximo')) datos.append(crear('span', 'etiqueta-proximo', 'PRÓXIMO'));
+    if (esSabado) {
+      const r = roles.sabados[clave];
+      datos.append(lineaRol('Predicador', r?.predicador), lineaRol('Acompañantes', r?.acompanantes), lineaRol('JA (tarde)', r?.ja), lineaRol('Flores', r?.flores));
+    } else {
+      datos.append(crear('span', 'tipo-culto', 'Culto de miércoles'), lineaRol('A cargo de', roles.miercoles?.[clave]?.predicador));
+    }
+    const editar = crear('button', 'icono rol-editar');
+    editar.innerHTML = SVG_LAPIZ;
+    editar.title = esSabado ? 'Editar roles de este sábado' : 'Editar este miércoles';
+    editar.onclick = () => editarRol(dia);
+    tarjeta.append(fecha, datos, editar);
+    return tarjeta;
+  }
+}
+
+let diaEditando = null;
+
+function editarRol(dia) {
+  // Con la hoja de Google conectada, los roles se editan ahí (una sola fuente para todos)
+  if (hoja.url) return abrirHoja();
+  diaEditando = dia;
+  const esSabado = dia.getDay() === 6;
+  const r = (esSabado ? roles.sabados : roles.miercoles || {})[claveFecha(dia)] || {};
+  const form = $('#form-rol');
+  $('#rol-titulo').textContent = `${esSabado ? 'Sábado' : 'Miércoles'} ${dia.getDate()} de ${MESES[dia.getMonth()]}`;
+  $('#rol-etiqueta-predicador').textContent = esSabado ? 'Predicador (mañana)' : 'Culto de miércoles: a cargo de';
+  $('#rol-campos-sabado').hidden = !esSabado;
+  form.predicador.value = r.predicador || '';
+  form.acompanantes.value = r.acompanantes || '';
+  form.ja.value = r.ja || '';
+  form.flores.value = r.flores || '';
+  $('#dialogo-rol').showModal();
+  form.predicador.focus();
+}
+
+$('#rol-cancelar').onclick = () => $('#dialogo-rol').close();
+$('#form-rol').onsubmit = async (e) => {
+  e.preventDefault();
+  const form = e.currentTarget;
+  const esSabado = diaEditando.getDay() === 6;
+  try {
+    roles = esSabado
+      ? await api(`/roles/sabado/${claveFecha(diaEditando)}`, {
+        method: 'PUT',
+        body: { predicador: form.predicador.value, acompanantes: form.acompanantes.value, ja: form.ja.value, flores: form.flores.value },
+      })
+      : await api(`/roles/miercoles/${claveFecha(diaEditando)}`, { method: 'PUT', body: { predicador: form.predicador.value } });
+    $('#dialogo-rol').close();
+    pintarRoles();
+    avisar('Roles guardados');
+  } catch (error) {
+    avisar(error.message);
+  }
+};
+
+// ---------- líderes por gestión ----------
+// Lista de líderes (gestión, nombre, cargo, celular), con botones para llamar y WhatsApp.
+
+let lideres = [];
+let gestionElegida = null;
+const COLORES_LIDER = ['#2563eb', '#db2777', '#16a34a', '#7c3aed', '#ea580c', '#0891b2', '#dc2626', '#d97706', '#0d9488', '#c026d3'];
+
+// Pestañas "Roles de culto | Líderes" dentro de 📋
+document.querySelectorAll('#vista-roles .pestana').forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll('#vista-roles .pestana').forEach((x) => x.classList.toggle('activa', x === b));
+    $('#panel-roles').hidden = b.dataset.panel !== 'panel-roles';
+    $('#panel-lideres').hidden = b.dataset.panel !== 'panel-lideres';
+    if (b.dataset.panel === 'panel-lideres') cargarLideres();
+  };
+});
+
+async function cargarLideres() {
+  try {
+    lideres = await api('/lideres');
+  } catch {
+    lideres = [];
+  }
+  // Gestión por defecto: la del año actual; si no hay, la más reciente
+  const gestiones = [...new Set(lideres.map((l) => String(l.gestion)))].sort((a, b) => b.localeCompare(a));
+  if (!gestionElegida || !gestiones.includes(gestionElegida)) {
+    const anio = String(new Date().getFullYear());
+    gestionElegida = gestiones.includes(anio) ? anio : gestiones[0] || null;
+  }
+  const select = $('#lideres-gestion');
+  select.replaceChildren(...gestiones.map((g) => {
+    const o = crear('option', '', `Gestión ${g}`);
+    o.value = g;
+    o.selected = g === gestionElegida;
+    return o;
+  }));
+  select.disabled = gestiones.length < 2;
+  pintarLideres();
+}
+
+$('#lideres-gestion').onchange = (e) => {
+  gestionElegida = e.target.value;
+  pintarLideres();
+};
+$('#buscar-lider').addEventListener('input', pintarLideres);
+
+// Celular boliviano: se dejan solo los dígitos y se agrega 591 si tiene 8
+function numeroWhatsapp(celular) {
+  const d = String(celular || '').replace(/\D/g, '');
+  if (d.length === 8) return `591${d}`;
+  return d.length >= 10 ? d : '';
+}
+
+// Íconos dibujados que se usan en las listas
+const SVG_LAPIZ = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+const SVG_NOTA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>';
+const SVG_NUBE_OK = '<svg viewBox="0 0 24 24" aria-label="Guardado sin internet"><path d="M7 18.5a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.5 1.5 3.8 3.8 0 0 1-.4 7.5z"/><path class="check" d="M9.3 13.6l1.9 1.9 3.6-3.7"/></svg>';
+
+const SVG_TELEFONO ='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h3.5l1.8 4.4-2.3 1.4a11 11 0 0 0 6.2 6.2l1.4-2.3L20 15.5V19a1.5 1.5 0 0 1-1.6 1.5A16.5 16.5 0 0 1 3.5 5.6 1.5 1.5 0 0 1 5 4z"/></svg>';
+
+// Color estable por cargo: el mismo texto da siempre el mismo color de la paleta
+function colorDeCargo(cargo) {
+  const t = sinTildes(cargo || '');
+  let h = 0;
+  for (const c of t) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return COLORES_LIDER[h % COLORES_LIDER.length];
+}
+
+// "71234567" -> "712 34567" (celulares de Bolivia: 8 dígitos)
+function formatoCelular(d) {
+  return d.length === 8 ? `${d.slice(0, 3)} ${d.slice(3)}` : d;
+}
+
+const SVG_WHATSAPP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.4-3c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg>';
+
+function pintarLideres() {
+  const lista = $('#lista-lideres');
+  lista.replaceChildren();
+  const vacio = $('#vacio-lideres');
+  if (!lideres.length) {
+    vacio.hidden = false;
+    vacio.textContent = 'Todavía no hay líderes. Agrégalos en la hoja «Líderes» del Excel de la iglesia.';
+    return;
+  }
+  const texto = sinTildes($('#buscar-lider').value.trim());
+  const deLaGestion = lideres.filter((l) => String(l.gestion) === gestionElegida)
+    .filter((l) => !texto || sinTildes(`${l.nombre} ${l.cargo}`).includes(texto));
+  vacio.hidden = deLaGestion.length > 0;
+  vacio.textContent = texto ? 'Nadie coincide con la búsqueda.' : 'No hay líderes en esta gestión.';
+  deLaGestion.forEach((l) => {
+    const li = crear('li', 'lider');
+    // Mismo color para el mismo cargo (todos los "Anciano" iguales, etc.)
+    li.style.setProperty('--color-lider', colorDeCargo(l.cargo));
+    const inicial = crear('span', 'lider-inicial', (l.nombre || '?').trim()[0]?.toUpperCase() || '?');
+    // Foto (columna «Foto» de la hoja Líderes); si no hay o no carga, queda la inicial
+    if (l.foto) {
+      const img = crear('img');
+      img.alt = l.nombre || '';
+      img.src = `/medios/foto/${encodeURIComponent(l.foto)}`;
+      img.onload = () => inicial.replaceChildren(img);
+    }
+    const datos = crear('div', 'lider-datos');
+    datos.append(crear('strong', '', l.nombre || ''));
+    if (l.cargo) datos.append(crear('span', 'cargo', l.cargo));
+    const acciones = crear('div', 'lider-acciones');
+    const digitos = String(l.celular || '').replace(/\D/g, '');
+    if (digitos) {
+      const tel = crear('span', 'telefono');
+      tel.innerHTML = SVG_TELEFONO;
+      tel.append(document.createTextNode(formatoCelular(digitos)));
+      datos.append(tel);
+      const llamar = crear('a', 'lider-accion llamar');
+      llamar.innerHTML = SVG_TELEFONO;
+      llamar.href = `tel:${digitos}`;
+      llamar.title = `Llamar a ${l.nombre}`;
+      acciones.append(llamar);
+      const wa = numeroWhatsapp(l.celular);
+      if (wa) {
+        const whatsapp = crear('a', 'lider-accion whatsapp');
+        whatsapp.href = `https://wa.me/${wa}`;
+        whatsapp.target = '_blank';
+        whatsapp.rel = 'noopener';
+        whatsapp.title = `WhatsApp a ${l.nombre}`;
+        whatsapp.innerHTML = SVG_WHATSAPP;
+        acciones.append(whatsapp);
+      }
+    }
+    li.append(inicial, datos, acciones);
+    lista.append(li);
+  });
+}
+
+// ---------- hoja de Google de la iglesia ----------
+// Roles, ancianos, cumpleaños y líderes vienen de la hoja compartida. La app la vuelve a leer
+// al abrirse, cada 15 minutos y con ⟳; si no hay internet, usa la última copia.
+
+let hoja = { url: null };
+let sincronizandoHoja = false;
+
+function haceCuanto(fechaIso) {
+  if (!fechaIso) return 'nunca';
+  const min = Math.round((Date.now() - new Date(fechaIso).getTime()) / 60000);
+  if (min < 1) return 'recién';
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `hace ${h} h`;
+  return new Date(fechaIso).toLocaleDateString('es', { day: 'numeric', month: 'short' });
+}
+
+function pintarEstadoHoja() {
+  document.querySelectorAll('.estado-hoja').forEach((caja) => {
+    caja.replaceChildren();
+    if (!hoja.url) return;
+    const texto = crear('span', 'texto');
+    if (sincronizandoHoja) {
+      texto.append(crear('span', 'girando', '⟳'), document.createTextNode(' Actualizando desde la hoja…'));
+    } else if (hoja.ok === false) {
+      texto.classList.add('error');
+      texto.textContent = `Sin conexión con la hoja · se muestra la copia de ${haceCuanto(hoja.fecha)}`;
+    } else {
+      texto.textContent = `Hoja de la iglesia · ${haceCuanto(hoja.fecha)}`;
+    }
+    texto.title = texto.textContent;
+    const actualizar = crear('button', 'boton texto', '⟳ Actualizar');
+    actualizar.disabled = sincronizandoHoja;
+    actualizar.onclick = () => sincronizarHoja(true);
+    const editar = crear('button', 'boton texto', '✎ Editar');
+    editar.title = 'Abrir la hoja de Google para editar';
+    editar.onclick = abrirHoja;
+    caja.append(texto, actualizar, editar);
+  });
+}
+
+function abrirHoja() {
+  if (!hoja.url) return;
+  // En la app de Android se abre con Google Sheets o el navegador del celular
+  window.open(hoja.url, '_blank', 'noopener');
+}
+
+// forzar=false: solo baja si pasaron más de 10 minutos desde la última vez
+async function sincronizarHoja(forzar = false) {
+  if (sincronizandoHoja) return;
+  sincronizandoHoja = true;
+  pintarEstadoHoja();
+  try {
+    hoja = await api('/hoja/sincronizar', { method: 'POST', body: { siPasaron: forzar ? 0 : 600 } });
+    if (forzar && hoja.ok) avisar('Datos actualizados desde la hoja');
+    if (forzar && !hoja.ok) avisar('No se pudo leer la hoja: ' + (hoja.error || 'sin conexión'));
+    if (hoja.avisos?.length) console.warn('Hoja de Google:', hoja.avisos);
+  } catch (error) {
+    if (forzar) avisar(error.message);
+  } finally {
+    sincronizandoHoja = false;
+  }
+  // Se vuelve a pintar lo que dependa de la hoja
+  await Promise.all([cargarCumpleanos(), cargarRoles()]);
+  if ($('#vista-roles').classList.contains('activa')) pintarRoles();
+  if (!$('#panel-lideres').hidden) cargarLideres();
+  pintarEstadoHoja();
+}
+
+setInterval(() => sincronizarHoja(false), 15 * 60 * 1000);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') sincronizarHoja(false);
+});
+
+// ---------- acerca de ----------
+$('#btn-acerca').onclick = () => $('#dialogo-acerca').showModal();
+
 // ---------- inicio ----------
 
 cargarLista().then(seguirRuta);
+cargarCumpleanos();
+api('/hoja').then((h) => { hoja = h; pintarEstadoHoja(); }).catch(() => {});
+sincronizarHoja(false);

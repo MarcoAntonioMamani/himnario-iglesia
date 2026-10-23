@@ -18,3 +18,13 @@ musica-fondo/
 
 # Configuración local de herramientas
 .claude/
+
+# Datos personales de los miembros (no subir)
+datos/cumpleanos.json
+datos/roles.json
+datos/fotos/
+datos/lideres.json
+
+# Apps de Android compiladas (llevan datos personales)
+*.apk
+datos/sincronizacion.json

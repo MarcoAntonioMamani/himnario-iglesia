@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícono original de LasAmericas (igual que web/icono.svg): llama, cruz y Biblia abierta.
+     No es el logo oficial de la iglesia. Centrado en la zona segura del ícono adaptable. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:translateX="22" android:translateY="22">
+        <!-- Llama -->
+        <path android:fillColor="#FBBF24"
+            android:pathData="M32,7c4,5 7,8 7,13a7,7 0,0 1,-14 0c0,-3 1.5,-5 3,-6.5 -0.3,2.6 0.7,4 2,4.5C29,14 31,11 32,7z" />
+        <!-- Cruz -->
+        <path android:fillColor="#FFFFFF" android:pathData="M31.5,22h1a1.5,1.5 0,0 1,1.5 1.5v19a1.5,1.5 0,0 1,-1.5 1.5h-1a1.5,1.5 0,0 1,-1.5 -1.5v-19a1.5,1.5 0,0 1,1.5 -1.5z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M26,28h12a1.5,1.5 0,0 1,1.5 1.5v1a1.5,1.5 0,0 1,-1.5 1.5h-12a1.5,1.5 0,0 1,-1.5 -1.5v-1a1.5,1.5 0,0 1,1.5 -1.5z" />
+        <!-- Biblia abierta -->
+        <path android:fillColor="#FFFFFF" android:pathData="M10,38c7,-2 14,-1.5 20,2.5v14c-6,-3.5 -13,-4 -20,-2z" />
+        <path android:fillColor="#E8EFFF" android:pathData="M54,38c-7,-2 -14,-1.5 -20,2.5v14c6,-3.5 13,-4 20,-2z" />
+        <path android:fillColor="#F59E0B" android:pathData="M30,40.5v14h4v-14c-1.3,-0.8 -2.7,-0.8 -4,0z" />
+    </group>
+</vector>

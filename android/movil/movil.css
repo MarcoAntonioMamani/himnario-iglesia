@@ -1,0 +1,87 @@
+/* Ajustes para la APK de Android. Se agregan a index.html al compilar la app;
+   el proyecto Himnario original no se modifica. */
+
+/* Sin resaltado azul al tocar y sin seleccionar texto por accidente: sensación de app nativa */
+* { -webkit-tap-highlight-color: transparent; }
+body { -webkit-user-select: none; user-select: none; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+
+/* Nada puede ser más ancho que la pantalla (antes se cortaban textos a la derecha).
+   Se usa "clip" y no "hidden": "hidden" en html/body bloquea el scroll en la vista web de Android */
+body, .vista { overflow-x: clip; }
+.vista, .contenido, .lista, .lista-videos, .lista-videos li, .tarjeta, .rol-tarjeta, .cumple-lista li { max-width: 100%; }
+.lista .titulo, .lista-videos .info, .rol-datos, .cumple-nombre, #titulo-video {
+  min-width: 0; overflow-wrap: anywhere; word-break: break-word;
+}
+#dock-video:not(.flotante) { max-width: calc(100vw - 24px); }
+
+/* Textos más compactos en el celular */
+@media (max-width: 600px) {
+  body { font-size: 14.5px; line-height: 1.45; }
+  h2 { font-size: 1rem; margin: 18px 0 8px; }
+  .barra h1 { font-size: 1.2rem; }
+  .buscador input { padding: 11px 16px; font-size: .95rem; }
+  .lista li { padding: 8px 8px; gap: 10px; }
+  .lista .titulo { font-size: .95rem; line-height: 1.3; }
+  .lista .titulo small { font-size: .75rem; }
+  .numero { width: 40px; height: 40px; border-radius: 12px; font-size: .9rem; }
+  .lista-videos li { gap: 10px; padding: 6px; }
+  .lista-videos .info { font-size: .88rem; line-height: 1.3; }
+  .lista-videos .info small { font-size: .74rem; }
+  #titulo-video, .subtitulo { font-size: .85rem; }
+  .chip { padding: 5px 11px; font-size: .82rem; }
+  .pestana { font-size: .85rem !important; }
+  .meditacion, .cita .versiculos { font-size: .9rem; }
+  .meditacion h3 { font-size: 1rem; }
+  .roles-proximo .linea { font-size: .86rem; }
+  .anciano-foto { width: 64px; height: 64px; }
+  .anciano-texto strong { font-size: 1rem; }
+  .cumple-lista li { padding: 10px 10px 10px 14px; }
+  .cumple-nombre { font-size: .92rem; }
+  .cumple-tarjeta b { font-size: 1.5rem; }
+  .mini-textos strong { font-size: .9rem; }
+  .credito { font-size: .68rem; }
+}
+
+/* Barra superior compacta: en el celular los botones de sección van solo con ícono */
+@media (max-width: 600px) {
+  .barra { padding: 8px 8px; gap: 4px; min-height: 62px; }
+  .marca h1 { font-size: 1.2rem; }
+  #btn-ir-musica, #btn-ir-videos { padding: 8px 11px; font-size: 1rem; }
+  .barra .icono { width: 48px; height: 48px; }
+  .marca img { width: 36px; height: 36px; }
+  .rol-tarjeta { grid-template-columns: 54px 1fr auto; gap: 12px; padding: 12px 8px 12px 14px; }
+  .pestana { padding: 10px 2px; font-size: .9rem; }
+  .contenido { padding: 0 12px 24px; }
+  .titulo-seccion { gap: 4px; }
+  .controles-audio { gap: 8px; }
+  .lista-videos img, .miniatura-lista { width: 96px; }
+  .presentacion .pres-abajo { gap: 6px; padding: 10px; }
+}
+
+/* La app de Android ya deja el lugar de los botones del sistema (MainActivity): aquí no se
+   vuelve a sumar el área segura, si no la barra inferior queda con un espacio vacío abajo */
+@media (max-width: 700px) {
+  .nav-inferior { padding-bottom: 6px !important; }
+  .mini-audio, .dock-video.flotante { bottom: 80px !important; }
+  body.sin-nav .mini-audio, body.sin-nav .dock-video.flotante { bottom: 12px !important; }
+  .barra-musica { bottom: 72px !important; }
+  .aviso { bottom: 88px !important; }
+}
+
+/* Botones táctiles de al menos 44 px */
+.icono { min-width: 44px; min-height: 44px; }
+
+/* Ventanita PiP de Android: solo el video, ocupando todo */
+body.en-pip { padding: 0 !important; background: #000 !important; overflow: hidden; }
+body.en-pip .vista, body.en-pip .credito, body.en-pip #mini-audio, body.en-pip .aviso,
+body.en-pip .presentacion, body.en-pip dialog, body.en-pip .nav-inferior { display: none !important; }
+body.en-pip #dock-video:not([hidden]) {
+  display: block !important; position: fixed !important; inset: 0 !important;
+  width: 100% !important; height: 100% !important; max-width: none !important;
+  border-radius: 0 !important; box-shadow: none !important; z-index: 100 !important;
+}
+body.en-pip .dock-capa { display: none !important; }
+
+/* La ventana flotante (⧉) no existe en Android: se ocultan sus botones */
+.btn-ventana { display: none !important; }

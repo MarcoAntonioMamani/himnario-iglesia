@@ -1,36 +1,43 @@
-/* Material 3 hecho a mano, sin librerías */
+/* LasAmericas · Material 3 hecho a mano, sin librerías. Paleta viva: azul real + dorado */
 :root {
-  --primario: #2b5d8a;
+  --primario: #1e5bd8;
   --en-primario: #ffffff;
-  --contenedor-primario: #d0e4ff;
-  --en-contenedor-primario: #001d35;
-  --secundario-contenedor: #d7e3f7;
-  --superficie: #f8f9ff;
+  --contenedor-primario: #dbe6ff;
+  --en-contenedor-primario: #0b2a6b;
+  --secundario-contenedor: #ffe9b8;
+  --acento: #f59e0b;
+  --superficie: #f4f7ff;
   --superficie-alta: #ffffff;
-  --superficie-variante: #e6ebf3;
-  --texto: #191c20;
-  --texto-suave: #42474e;
-  --borde: #c2c7cf;
-  --favorito: #c2185b;
-  --ok: #2e7d32;
+  --superficie-variante: #e3eaf8;
+  --texto: #14181f;
+  --texto-suave: #4a5262;
+  --borde: #c3cbdb;
+  --favorito: #e91e63;
+  --ok: #16a34a;
   --radio: 16px;
+  /* Barra superior: degradado azul real → celeste */
+  --degradado: linear-gradient(120deg, #1a3fb0 0%, #1e5bd8 45%, #0ea5e9 100%);
+  --sombra: 0 4px 14px rgba(30, 91, 216, .18);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --primario: #9ccaff;
-    --en-primario: #003256;
-    --contenedor-primario: #0f4a73;
-    --en-contenedor-primario: #d0e4ff;
-    --secundario-contenedor: #3b4858;
-    --superficie: #111418;
-    --superficie-alta: #1d2024;
-    --superficie-variante: #2a2e33;
-    --texto: #e1e2e8;
-    --texto-suave: #c2c7cf;
-    --borde: #42474e;
-    --favorito: #ff8fb8;
-    --ok: #81c784;
+    --primario: #8fb4ff;
+    --en-primario: #0b2a6b;
+    --contenedor-primario: #1d3a7a;
+    --en-contenedor-primario: #dbe6ff;
+    --secundario-contenedor: #5a4210;
+    --acento: #fbbf24;
+    --superficie: #0e1220;
+    --superficie-alta: #171c2c;
+    --superficie-variante: #222a3d;
+    --texto: #e6e9f2;
+    --texto-suave: #b9c1d3;
+    --borde: #3a445c;
+    --favorito: #ff7aa8;
+    --ok: #4ade80;
+    --degradado: linear-gradient(120deg, #142a78 0%, #1b44a8 50%, #0b6f9e 100%);
+    --sombra: 0 4px 14px rgba(0, 0, 0, .4);
     color-scheme: dark;
   }
 }
@@ -56,10 +63,21 @@ button { font: inherit; color: inherit; cursor: pointer; }
   position: sticky; top: 0; z-index: 5;
   display: flex; align-items: center; gap: 8px;
   padding: 10px 16px;
-  background: var(--superficie);
-  border-bottom: 1px solid var(--superficie-variante);
+  background: var(--degradado);
+  color: #fff;
+  box-shadow: var(--sombra);
 }
-.barra h1 { flex: 1; margin: 0; font-size: 1.3rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barra h1 { flex: 1; margin: 0; font-size: 1.3rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: .2px; }
+.barra .icono { color: #fff; }
+.barra .icono:hover { background: rgba(255, 255, 255, .18); }
+.barra .boton.tonal-chico { background: rgba(255, 255, 255, .2); color: #fff; }
+.barra .boton.tonal-chico:hover { background: rgba(255, 255, 255, .3); }
+.barra .favorito.si { color: #ffd1e1; }
+/* Nombre del sistema con su ícono */
+.marca { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.marca img { width: 34px; height: 34px; border-radius: 10px; flex: none; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.marca h1 { flex: 1; }
+.marca small { display: block; font-size: .72rem; font-weight: 400; opacity: .85; margin-top: -2px; }
 .icono {
   width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent;
   font-size: 1.4rem; display: grid; place-items: center; flex: none;
@@ -79,14 +97,25 @@ button { font: inherit; color: inherit; cursor: pointer; }
   flex: 1; border: none; background: none; padding: 10px 4px; font-weight: 500;
   color: var(--texto-suave); border-bottom: 3px solid transparent;
 }
-.pestana.activa { color: var(--primario); border-bottom-color: var(--primario); }
+.pestana.activa { color: var(--primario); border-bottom-color: var(--acento); }
 
 .chips { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; scrollbar-width: none; }
 .chip {
-  flex: none; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--borde);
-  background: transparent; font-size: .9rem;
+  flex: none; padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--color-tema, var(--borde));
+  background: transparent; font-size: .9rem; color: var(--texto);
 }
-.chip.activo { background: var(--secundario-contenedor); border-color: transparent; }
+.chip.activo { background: var(--color-tema, var(--primario)); border-color: transparent; color: #fff; font-weight: 600; }
+
+/* Un color vivo para cada tema del himnario (números de la lista y chips) */
+.tema-culto { --color-tema: #7c3aed; }
+.tema-padre { --color-tema: #2563eb; }
+.tema-cristo { --color-tema: #dc2626; }
+.tema-espiritu { --color-tema: #ea580c; }
+.tema-escrituras { --color-tema: #0891b2; }
+.tema-evangelio { --color-tema: #16a34a; }
+.tema-vida { --color-tema: #0d9488; }
+.tema-iglesia { --color-tema: #c026d3; }
+.tema-hogar { --color-tema: #d97706; }
 
 .acciones-lista { padding: 0 16px 8px; }
 
@@ -96,8 +125,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .lista li:hover { background: var(--superficie-variante); }
 .numero {
-  flex: none; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center;
-  background: var(--contenedor-primario); color: var(--en-contenedor-primario); font-weight: 600;
+  flex: none; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center;
+  background: var(--color-tema, var(--primario)); color: #fff; font-weight: 700;
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--color-tema, var(--primario)) 35%, transparent);
 }
 .lista .titulo { flex: 1; min-width: 0; }
 .lista .titulo small { display: block; color: var(--texto-suave); font-size: .82rem; }
@@ -357,6 +387,388 @@ body.con-flotante { padding-bottom: 120px; }
 .fondo-pistas small { display: block; color: var(--texto-suave); font-size: .8rem; }
 .lista-musica .luna { opacity: .35; }
 .lista-musica .luna.si { opacity: 1; }
+
+/* ---------- Cumpleaños ---------- */
+.boton-cumple { position: relative; }
+.insignia {
+  position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--acento); color: #1a1200; font-size: .7rem; font-weight: 800; display: grid; place-items: center;
+  box-shadow: 0 0 0 2px #fff;
+}
+.aviso-cumple {
+  display: flex; align-items: center; gap: 12px; margin: 12px 16px 0; padding: 12px 8px 12px 14px; border-radius: 16px;
+  background: linear-gradient(120deg, #f59e0b, #f97316 55%, #ec4899); color: #fff; box-shadow: 0 6px 18px rgba(236, 72, 153, .3);
+  cursor: pointer; animation: aparecer .3s ease-out;
+}
+.aviso-cumple-icono { font-size: 1.8rem; flex: none; }
+.aviso-cumple-texto { flex: 1; min-width: 0; font-size: .95rem; line-height: 1.35; }
+.aviso-cumple-texto strong { font-weight: 700; }
+.aviso-cumple .icono { color: #fff; width: 36px; height: 36px; min-width: 36px; min-height: 36px; font-size: 1rem; }
+.cumple-resumen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.cumple-tarjeta {
+  border: none; border-radius: 16px; padding: 12px 8px; color: #fff; text-align: center; box-shadow: var(--sombra);
+}
+.cumple-tarjeta b { display: block; font-size: 1.8rem; line-height: 1.1; }
+.cumple-tarjeta span { font-size: .8rem; opacity: .95; }
+.cumple-tarjeta.hoy { background: linear-gradient(135deg, #ec4899, #f97316); }
+.cumple-tarjeta.manana { background: linear-gradient(135deg, #f59e0b, #eab308); }
+.cumple-tarjeta.semana { background: linear-gradient(135deg, #1e5bd8, #0ea5e9); }
+.cumple-grupo h2 { display: flex; align-items: center; gap: 8px; }
+.cumple-grupo h2 small { color: var(--texto-suave); font-weight: 400; font-size: .85rem; }
+.cumple-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cumple-lista li {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px;
+  background: var(--superficie-alta); border: 1px solid var(--superficie-variante);
+}
+.cumple-lista li.es-hoy { border-color: #ec4899; background: color-mix(in srgb, #ec4899 9%, var(--superficie-alta)); }
+.cumple-lista li.es-manana { border-color: #f59e0b; }
+.cumple-fecha {
+  flex: none; width: 52px; text-align: center; border-radius: 12px; padding: 4px 0; color: #fff; font-weight: 700; line-height: 1.1;
+  background: var(--color-mes, var(--primario));
+}
+.cumple-fecha small { display: block; font-size: .65rem; font-weight: 600; text-transform: uppercase; opacity: .9; }
+.cumple-nombre { flex: 1; min-width: 0; }
+.cumple-nombre small { display: block; color: var(--texto-suave); font-size: .8rem; }
+.cumple-etiqueta { flex: none; font-size: .75rem; font-weight: 700; padding: 3px 9px; border-radius: 10px; color: #fff; background: #ec4899; }
+.cumple-etiqueta.manana { background: var(--acento); color: #1a1200; }
+
+/* ---------- Roles del sábado ---------- */
+.roles-proximo:empty { display: none; }
+.roles-proximo {
+  margin-top: 14px; padding: 14px 16px; border-radius: 18px; color: #fff;
+  background: linear-gradient(120deg, #7c3aed, #c026d3 55%, #ec4899); box-shadow: 0 6px 18px rgba(192, 38, 211, .3);
+}
+.roles-proximo h3 { margin: 0 0 6px; font-size: .85rem; font-weight: 600; opacity: .9; text-transform: uppercase; letter-spacing: .5px; }
+.roles-mes { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 6px; }
+.roles-mes h2 { margin: 0; font-size: 1.25rem; text-transform: capitalize; }
+.roles-mes .icono { font-size: 1.8rem; color: var(--primario); }
+.roles-anciano:empty { display: none; }
+.roles-anciano {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 14px; margin-bottom: 12px;
+  background: var(--secundario-contenedor); font-size: .95rem;
+}
+.roles-anciano strong { flex: 1; }
+.roles-anciano .icono { width: 36px; height: 36px; min-width: 36px; min-height: 36px; font-size: 1rem; }
+.roles-sabados { display: grid; gap: 12px; }
+.roles-grupo {
+  margin: 8px 0 -2px; font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--primario);
+}
+.roles-grupo:first-child { margin-top: 0; }
+.rol-tarjeta {
+  display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: start; padding: 12px;
+  border-radius: 18px; background: var(--superficie-alta); border: 1px solid var(--superficie-variante); box-shadow: var(--sombra);
+}
+.rol-tarjeta.proximo { border: 2px solid #c026d3; }
+.rol-tarjeta.pasado { opacity: .6; }
+.rol-fecha {
+  border-radius: 14px; padding: 6px 0; text-align: center; color: #fff; line-height: 1.1;
+  background: linear-gradient(135deg, #1e5bd8, #0ea5e9); font-weight: 800; font-size: 1.5rem;
+}
+.rol-fecha small { display: block; font-size: .65rem; font-weight: 700; text-transform: uppercase; opacity: .9; }
+.rol-datos { min-width: 0; }
+.rol-datos .linea, .roles-proximo .linea { display: flex; flex-wrap: wrap; gap: 0 6px; margin: 3px 0; font-size: .93rem; }
+.etiqueta-rol { flex: none; font-weight: 700; }
+.rol-datos .etiqueta-rol { color: var(--primario); }
+.rol-datos .falta { color: var(--texto-suave); font-style: italic; }
+.roles-proximo .falta { opacity: .8; font-style: italic; }
+.roles-proximo h3 + .linea { margin-top: 0; }
+.roles-proximo .linea + h3 { margin-top: 10px; }
+.tipo-culto { display: block; font-weight: 700; color: #0d9488; font-size: .85rem; margin-bottom: 2px; }
+.rol-tarjeta.miercoles .rol-fecha { background: linear-gradient(135deg, #0d9488, #16a34a); }
+.rol-tarjeta.miercoles .etiqueta-rol { color: #0d9488; }
+/* Anciano de turno con su foto */
+.roles-anciano { gap: 14px; padding: 12px 14px; }
+.anciano-foto {
+  flex: none; width: 76px; height: 76px; border-radius: 50%; padding: 0; border: 3px solid var(--acento);
+  overflow: hidden; background: var(--superficie-alta); display: grid; place-items: center; font-size: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+}
+.anciano-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.anciano-texto { flex: 1; min-width: 0; }
+.anciano-texto small { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; color: var(--texto-suave); font-weight: 700; }
+.anciano-texto strong { display: block; font-size: 1.1rem; line-height: 1.25; }
+.anciano-texto .boton.texto { padding: 4px 0; font-size: .85rem; }
+.rol-datos .etiqueta-proximo { display: inline-block; margin-bottom: 4px; padding: 2px 8px; border-radius: 10px; background: #c026d3; color: #fff; font-size: .72rem; font-weight: 700; }
+
+/* ---------- Barra superior (Material 3): más alta, botones de 48 px e íconos dibujados ---------- */
+.barra { min-height: 64px; padding: 8px 12px; gap: 6px; }
+.barra h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .2px; }
+.barra .icono { width: 48px; height: 48px; min-width: 48px; min-height: 48px; border-radius: 50%; }
+.barra .icono svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+.barra .icono:active { background: rgba(255, 255, 255, .26); }
+.marca img { width: 38px; height: 38px; border-radius: 11px; }
+.marca h1 { font-size: 1.3rem; }
+.marca small { font-size: .74rem; }
+/* Luna del fondo: rellena cuando el fondo está sonando */
+.boton-fondo svg { fill: none; }
+.boton-fondo.sonando svg { fill: currentColor; }
+
+/* ---------- Barra de navegación inferior (Material 3, como una app de Android) ---------- */
+.nav-inferior { display: none; }
+.credito-lista { display: none; }
+@media (max-width: 700px) {
+  .nav-inferior {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 12;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    padding: 6px 4px calc(8px + env(safe-area-inset-bottom));
+    /* Translúcida con desenfoque: se adivina el contenido que pasa por detrás */
+    background: color-mix(in srgb, var(--superficie-alta) 88%, transparent);
+    -webkit-backdrop-filter: saturate(160%) blur(14px); backdrop-filter: saturate(160%) blur(14px);
+    box-shadow: 0 -1px 0 var(--superficie-variante), 0 -6px 24px rgba(20, 40, 100, .10);
+  }
+  .nav-inferior button {
+    position: relative; overflow: hidden;
+    border: none; background: none; padding: 4px 0 2px; min-height: 60px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    color: var(--texto-suave); font-size: .72rem; font-weight: 600; letter-spacing: .1px; cursor: pointer;
+    transition: color .2s;
+  }
+  /* Íconos de línea: trazo del color del texto; el activo se rellena */
+  .nav-icono svg {
+    width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8;
+    stroke-linecap: round; stroke-linejoin: round; transition: transform .25s cubic-bezier(.2, .8, .2, 1.2);
+  }
+  .nav-icono .relleno { stroke: none; fill: currentColor; opacity: 0; transition: opacity .2s; }
+  .nav-icono .triangulo, .nav-icono .llama { fill: currentColor; stroke: none; }
+  /* Píldora detrás del ícono activo (Material 3), que aparece creciendo desde el centro */
+  .nav-icono {
+    position: relative; width: 64px; height: 32px; border-radius: 16px;
+    display: grid; place-items: center; line-height: 1;
+  }
+  .nav-icono::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(135deg, var(--contenedor-primario), color-mix(in srgb, var(--contenedor-primario) 70%, #bae6fd));
+    transform: scaleX(.3); opacity: 0; transition: transform .3s cubic-bezier(.2, .8, .2, 1), opacity .2s;
+  }
+  .nav-icono svg { position: relative; }
+  .nav-inferior button.activo { color: var(--primario); font-weight: 700; }
+  .nav-inferior button.activo .nav-icono::before { transform: scaleX(1); opacity: 1; }
+  .nav-inferior button.activo .relleno { opacity: .18; }
+  .nav-inferior button.activo .nav-icono svg { transform: translateY(-1px) scale(1.06); }
+  .nav-inferior button.activo .detalle { stroke-width: 2.1; }
+  /* Onda al tocar, como en Android */
+  .nav-inferior button::after {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 120%; aspect-ratio: 1; border-radius: 50%;
+    background: currentColor; opacity: 0; transform: translate(-50%, -50%) scale(.1);
+    transition: transform .45s ease, opacity .6s ease;
+  }
+  .nav-inferior button:active::after { opacity: .10; transform: translate(-50%, -50%) scale(1); transition: 0s; }
+  .nav-icono .insignia { top: -3px; right: 10px; z-index: 1; }
+  /* Con la barra abajo, los botones de sección de arriba sobran */
+  #btn-roles, #btn-cumple, #btn-ir-musica, #btn-ir-videos { display: none !important; }
+  .credito { display: none; }
+  .credito-lista { display: block; text-align: center; font-size: .72rem; color: var(--texto-suave); margin: 18px 0 8px; }
+  .credito-lista strong { color: var(--primario); }
+  /* Todo lo flotante y el final de las páginas van por encima de la barra */
+  body { padding-bottom: 96px; }
+  body.con-flotante { padding-bottom: 180px; }
+  .mini-audio { bottom: calc(84px + env(safe-area-inset-bottom)) !important; }
+  .dock-video.flotante { bottom: calc(84px + env(safe-area-inset-bottom)) !important; }
+  #vista-musica.activa { padding-bottom: 230px; }
+  .barra-musica { bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .aviso { bottom: calc(92px + env(safe-area-inset-bottom)); }
+  /* Dentro de un himno (pantalla de detalle) la barra se esconde, como en las apps nativas */
+  body.sin-nav .nav-inferior { display: none; }
+  body.sin-nav { padding-bottom: 48px; }
+  body.sin-nav .mini-audio, body.sin-nav .dock-video.flotante { bottom: 16px !important; }
+}
+
+/* ---------- Lista de himnos ---------- */
+.lista .fila-himno {
+  position: relative; gap: 14px; padding: 10px 10px; border-radius: 14px;
+  transition: background .15s, transform .1s;
+}
+.lista .fila-himno + .fila-himno::before {
+  content: ''; position: absolute; top: 0; left: 72px; right: 12px; height: 1px; background: var(--superficie-variante);
+}
+.lista .fila-himno:active { background: color-mix(in srgb, var(--color-tema, var(--primario)) 8%, transparent); transform: scale(.995); }
+.fila-himno .numero {
+  width: 46px; height: 46px; border-radius: 14px; font-size: .95rem; font-weight: 800; letter-spacing: .3px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--color-tema, var(--primario)) 72%, #fff), var(--color-tema, var(--primario)));
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--color-tema, var(--primario)) 30%, transparent);
+}
+.fila-himno .titulo { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.fila-himno .titulo-texto { font-size: 1rem; font-weight: 600; line-height: 1.25; color: var(--texto); }
+.tema-chip {
+  padding: 2px 9px; border-radius: 999px; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--color-tema, var(--primario)); background: color-mix(in srgb, var(--color-tema, var(--primario)) 12%, transparent);
+}
+.fila-himno .marcas { display: flex; align-items: center; gap: 6px; }
+.marca-fav svg, .marca-ok svg { width: 20px; height: 20px; display: block; }
+.marca-fav svg { fill: #e91e63; }
+.marca-ok svg { fill: color-mix(in srgb, #16a34a 16%, transparent); stroke: #16a34a; stroke-width: 1.6; stroke-linejoin: round; }
+.marca-ok .check { fill: none; stroke-width: 2; stroke-linecap: round; }
+.fila-himno .flecha { font-size: 1.5rem; line-height: 1; color: var(--borde); margin-left: 2px; }
+
+/* Favoritos: reproducir todo / aleatorio */
+.reproducir-favoritos { display: flex; gap: 8px; margin-bottom: 8px; }
+.reproducir-favoritos .boton.lleno { flex: 1; padding: 12px; font-size: .95rem; box-shadow: var(--sombra); }
+.reproducir-favoritos .boton.tonal-chico { flex: none; padding: 12px 16px; font-size: .95rem; }
+/* Himno que está sonando */
+.lista .fila-himno.actual { background: color-mix(in srgb, var(--color-tema, var(--primario)) 10%, transparent); }
+.lista .fila-himno.actual .titulo-texto { color: var(--color-tema, var(--primario)); }
+
+/* ---------- Roles: tarjetas ---------- */
+.rol-tarjeta {
+  position: relative; overflow: hidden; grid-template-columns: 58px 1fr auto; gap: 14px; padding: 14px 10px 14px 16px;
+  border-radius: 18px; box-shadow: 0 2px 10px rgba(20, 40, 100, .06);
+  --color-rol: #1e5bd8;
+}
+.rol-tarjeta.miercoles { --color-rol: #0d9488; }
+.rol-tarjeta::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--color-rol); }
+.rol-tarjeta .rol-fecha, .rol-tarjeta.miercoles .rol-fecha {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  padding: 8px 0; border-radius: 14px; font-size: inherit;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--color-rol) 72%, #fff), var(--color-rol));
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--color-rol) 28%, transparent);
+}
+.rol-fecha b { font-size: 1.5rem; line-height: 1; font-weight: 800; }
+.rol-fecha small { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; opacity: .92; }
+.rol-fecha .rol-dia { font-size: .64rem; font-weight: 800; }
+/* Cada rol en dos niveles: etiqueta chica arriba y nombre destacado abajo */
+.rol-datos { display: flex; flex-direction: column; gap: 8px; }
+.rol-datos .linea { display: flex; flex-direction: column; gap: 0; margin: 0; }
+.rol-datos .etiqueta-rol, .rol-tarjeta.miercoles .etiqueta-rol {
+  font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--color-rol); opacity: .9;
+}
+.rol-datos .valor-rol { font-size: .95rem; font-weight: 600; line-height: 1.3; color: var(--texto); }
+.rol-datos .valor-rol.falta { font-weight: 400; font-style: italic; color: var(--texto-suave); }
+.rol-tarjeta .tipo-culto { color: var(--color-rol); font-size: .78rem; margin-bottom: -2px; }
+.rol-tarjeta .etiqueta-proximo {
+  align-self: flex-start; margin: 0; padding: 3px 10px; border-radius: 999px; font-size: .66rem; letter-spacing: .6px;
+  background: linear-gradient(120deg, #c026d3, #ec4899); box-shadow: 0 3px 8px rgba(192, 38, 211, .3);
+}
+.rol-tarjeta.proximo { border: 1.5px solid color-mix(in srgb, #c026d3 55%, transparent); box-shadow: 0 6px 18px rgba(192, 38, 211, .14); }
+.rol-tarjeta.pasado { opacity: .55; }
+.rol-editar { width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 12px; color: var(--texto-suave); }
+.rol-editar svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.rol-editar:hover { background: var(--superficie-variante); color: var(--primario); }
+
+/* ---------- Cumpleaños: filas ---------- */
+.cumple-lista { gap: 8px; }
+.cumple-lista li {
+  position: relative; overflow: hidden; gap: 14px; padding: 12px 12px 12px 16px; border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(20, 40, 100, .05);
+}
+.cumple-lista li::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--color-mes, var(--primario)); }
+.cumple-fecha {
+  width: 50px; padding: 6px 0; border-radius: 14px; font-size: 1.25rem; font-weight: 800;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--color-mes, var(--primario)) 72%, #fff), var(--color-mes, var(--primario)));
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--color-mes, var(--primario)) 28%, transparent);
+}
+.cumple-fecha small { font-size: .6rem; letter-spacing: .6px; }
+.cumple-nombre { font-weight: 600; font-size: .98rem; line-height: 1.3; }
+.cumple-nombre small { margin-top: 3px; font-weight: 400; }
+.cumple-lista li.ya-paso { opacity: .6; }
+.cumple-lista li.es-hoy {
+  border-color: transparent; background: linear-gradient(120deg, color-mix(in srgb, #ec4899 10%, var(--superficie-alta)), var(--superficie-alta));
+  box-shadow: 0 6px 18px rgba(236, 72, 153, .18);
+}
+.cumple-lista li.es-hoy::before { background: linear-gradient(#ec4899, #f97316); }
+.cumple-etiqueta { padding: 4px 10px; border-radius: 999px; font-size: .66rem; letter-spacing: .6px; background: linear-gradient(120deg, #ec4899, #f97316); box-shadow: 0 3px 8px rgba(236, 72, 153, .3); }
+.cumple-etiqueta.manana { background: linear-gradient(120deg, #f59e0b, #eab308); color: #1a1200; box-shadow: 0 3px 8px rgba(245, 158, 11, .3); }
+
+/* ---------- Música: filas ---------- */
+.lista .fila-cancion { position: relative; gap: 14px; padding: 10px; border-radius: 14px; }
+.lista .fila-cancion + .fila-cancion::before {
+  content: ''; position: absolute; top: 0; left: 70px; right: 12px; height: 1px; background: var(--superficie-variante);
+}
+.cancion-cuadro {
+  flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(140deg, #7c3aed, #1e5bd8 60%, #0ea5e9); box-shadow: 0 4px 10px rgba(30, 91, 216, .28);
+}
+.cancion-cuadro svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.fila-cancion .titulo { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.fila-cancion .tema-chip { --color-tema: #7c3aed; }
+.lista-musica li.actual { background: color-mix(in srgb, #1e5bd8 9%, transparent); }
+.lista-musica li.actual .titulo-texto { color: var(--primario); }
+.lista-musica li.actual .cancion-cuadro { background: linear-gradient(140deg, #ec4899, #f97316); box-shadow: 0 4px 12px rgba(236, 72, 153, .35); }
+/* Barritas de ecualizador mientras suena */
+.ecualizador { display: flex; align-items: flex-end; gap: 3px; height: 18px; }
+.ecualizador i { width: 3px; border-radius: 2px; background: #fff; animation: barra 0.9s ease-in-out infinite; }
+.ecualizador i:nth-child(1) { animation-delay: -.2s; }
+.ecualizador i:nth-child(2) { animation-delay: -.5s; }
+.ecualizador i:nth-child(3) { animation-delay: -.1s; }
+.ecualizador i:nth-child(4) { animation-delay: -.7s; }
+@keyframes barra { 0%, 100% { height: 4px; } 50% { height: 18px; } }
+.fila-cancion .luna { width: 38px; height: 38px; min-width: 38px; min-height: 38px; font-size: 1rem; border-radius: 12px; opacity: .3; filter: grayscale(1); }
+.fila-cancion .luna.si { opacity: 1; filter: none; background: color-mix(in srgb, #f59e0b 14%, transparent); }
+
+/* ---------- Estado de la hoja de Google ---------- */
+.estado-hoja:empty { display: none; }
+/* Una sola fila compacta: texto (recortado si no entra) + ⟳ + ✎ */
+.estado-hoja {
+  display: flex; align-items: center; gap: 4px; margin-top: 12px; padding: 4px 4px 4px 12px;
+  border-radius: 12px; background: var(--superficie-variante); font-size: .76rem; color: var(--texto-suave);
+}
+.estado-hoja .texto { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.estado-hoja .texto.error { color: #c62828; }
+.estado-hoja .boton { flex: none; padding: 6px 9px; font-size: .76rem; white-space: nowrap; }
+.estado-hoja .girando { display: inline-block; animation: girar 1s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* Foto del líder en lugar de la inicial */
+.lider-inicial img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+
+/* ---------- Líderes ---------- */
+.lideres-gestion { display: flex; align-items: center; gap: 10px; margin: 14px 0 8px; }
+.lideres-gestion label { font-weight: 700; color: var(--texto-suave); }
+.lideres-gestion select {
+  flex: 1; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--borde);
+  background: var(--superficie-alta); color: var(--texto); font: inherit; font-weight: 600;
+}
+.lista-lideres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.lider {
+  position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 12px 14px 16px; border-radius: 18px;
+  background: var(--superficie-alta); border: 1px solid var(--superficie-variante);
+  box-shadow: 0 2px 10px rgba(20, 40, 100, .06); overflow: hidden;
+}
+/* Franja de color del cargo a la izquierda */
+.lider::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--color-lider, var(--primario)); }
+.lider-inicial {
+  flex: none; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center;
+  color: #fff; font-weight: 800; font-size: 1.15rem; letter-spacing: .5px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--color-lider, var(--primario)) 75%, #fff), var(--color-lider, var(--primario)));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-lider, var(--primario)) 18%, transparent);
+}
+.lider-datos { flex: 1; min-width: 0; overflow-wrap: anywhere; display: flex; flex-direction: column; gap: 4px; }
+.lider-datos strong { display: block; font-size: 1rem; line-height: 1.25; font-weight: 700; color: var(--texto); }
+/* Cargo como etiqueta de color (cada cargo tiene siempre el mismo color) */
+.lider-datos .cargo {
+  align-self: flex-start; padding: 3px 10px; border-radius: 999px; font-size: .74rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .5px; line-height: 1.4;
+  color: var(--color-lider, var(--primario)); background: color-mix(in srgb, var(--color-lider, var(--primario)) 13%, transparent);
+}
+.lider-datos .telefono { display: flex; align-items: center; gap: 5px; color: var(--texto-suave); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.lider-datos .telefono svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+.lider-acciones { display: flex; gap: 8px; flex: none; }
+/* Botones tonales: fondo suave del color y el ícono en el color fuerte */
+.lider-accion {
+  width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; text-decoration: none;
+  transition: transform .15s, background .2s;
+}
+.lider-accion:active { transform: scale(.92); }
+.lider-accion svg { width: 22px; height: 22px; }
+.lider-accion.llamar { background: color-mix(in srgb, #1e5bd8 12%, transparent); color: #1e5bd8; border: 1px solid color-mix(in srgb, #1e5bd8 25%, transparent); }
+.lider-accion.llamar svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lider-accion.whatsapp { background: color-mix(in srgb, #25d366 14%, transparent); color: #16a34a; border: 1px solid color-mix(in srgb, #25d366 30%, transparent); }
+.lider-accion.whatsapp svg { fill: currentColor; }
+@media (prefers-color-scheme: dark) {
+  .lider-accion.llamar { color: #8fb4ff; }
+  .lider-accion.whatsapp { color: #4ade80; }
+}
+
+/* ---------- Acerca de y crédito ---------- */
+.acerca { text-align: center; }
+.acerca-icono { width: 88px; height: 88px; border-radius: 22px; box-shadow: var(--sombra); }
+.acerca h2 { margin: 12px 0 4px; font-size: 1.5rem; background: var(--degradado); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.acerca-dev { margin: 18px 0; color: var(--texto-suave); font-size: .9rem; }
+/* Botones uno debajo del otro, a todo el ancho */
+.acerca .fila { flex-direction: column; align-items: stretch; gap: 10px; }
+.acerca .fila .boton { width: 100%; padding: 12px 16px; font-size: .95rem; border-radius: 14px; white-space: nowrap; }
+.acerca #btn-actualizar { background: var(--secundario-contenedor); color: var(--texto); }
+.acerca-dev strong { color: var(--texto); font-size: 1.1rem; }
+.credito strong { color: var(--primario); font-weight: 700; }
 
 .aviso {
   position: fixed; left: 50%; bottom: 56px; transform: translateX(-50%); z-index: 10;
